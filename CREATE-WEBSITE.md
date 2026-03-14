@@ -40,8 +40,9 @@ Verify you can see this locally.
 ```bash
 touch .github/workflows/deploy.yml
 ```
-Copy the contents from [deploy.yml](https://quartz.jzhao.xyz/hosting#github-pages) to this new file.
-Go to your GitHub repository: Settings > Pages > Source -> "GitHub Actions"
+-> Copy the contents from [deploy.yml](https://quartz.jzhao.xyz/hosting#github-pages) to this new file.
+-> Go to your GitHub repository: Settings > Pages > Source -> "GitHub Actions"
+-> Go to GitHub repository: Settings > Environments > Deployment branches and tags > Add deployment branch or tag rule -> Add `v4` so that it allows GitHub to deploy from that branch.
 ```bash
 npx quartz sync
 ```
