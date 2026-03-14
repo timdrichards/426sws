@@ -8,3 +8,5 @@ This course is about the exploration of building scalable systems.
 ![[Pasted image 20260314103438.png]]
 
 ![[Pasted image 20260314103808.png]]
+
+![[Pasted image 20260314104204.png]]
