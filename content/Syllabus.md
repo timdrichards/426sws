@@ -46,7 +46,7 @@ By the end of the course, students should be able to:
 | SK09  | Collaborate through shared workflows such as status updates, issue tracking, reviews, and handoffs to keep team work aligned and on schedule. |
 
 ## Engineering Toolchain
-- **Required hardware:** A laptop
+- **Required hardware:** A 64-bit laptop capable of running Docker Desktop, with hardware virtualization enabled, 8 GB RAM minimum (16 GB recommended), and at least 20-30 GB of free SSD space.
 - **Required software:** Editor (VS Code, Antigravity, Zed, etc.), Node.js, Python, Docker Desktop, Git, Chrome Browser, Up-to-Date MacOS/Windows/Linux.
 - **Accounts:** Campus Email, Canvas, GitHub, DockerHub
 - **Technical readings:** Lecture notes, provided book chapters, online articles and documents
