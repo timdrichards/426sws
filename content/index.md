@@ -20,7 +20,7 @@ A more detailed outline of the course policies and requirements are maintained i
 - [[Session 09]]
 - [[Session 10]]
 - [[Session 11]]
-- [[Session 12]]
+- [[Session 12 - Authentication]]
 - [[Session 13]]
 - [[Session 14]]
 - [[Session 15]]
