@@ -28,29 +28,34 @@ The web has become a large and complex area for application development. Access 
 ## Entry Requirements and Technical Baseline
 - **Formal prerequisite:** Prerequisite: COMPSCI 320 or COMPSCI 326 with a grade of C or better. 3 credits.
 - **Assumed background:** Students should be comfortable with programming, troubleshooting, client/server communication, command-line tools, data structures, and reading technical documentation.
-- **Recommended background:** Prior experience with JavaScript, TypeScript, Python, Git, SQL, and web development concepts is helpful, but the instructor should clarify what is required versus merely recommended.
+- **Recommended background:** Prior experience with JavaScript, TypeScript, Python, Git, GitHub, SQL, and web development concepts is helpful, but the instructor should clarify what is required versus merely recommended. If you do not have background in any of these areas, you will be expected to come up to speed quickly as class progresses.
 
 ## Skills You Will Build
 By the end of the course, students should be able to:
 
-- Explain why modern web applications become difficult to scale as users, services, data, and dependencies grow.
-- Describe how coordinated services, databases, user interfaces, and third-party integrations fit together in large web application architectures.
-- Analyze scalability challenges involving concurrency, performance, reliability, security, and system complexity.
-- Evaluate architectural tradeoffs in real-world web systems and explain how design choices affect scalability and maintainability.
-- Interpret and discuss case studies of well-known web applications using appropriate technical vocabulary and architectural reasoning.
-- Communicate system design ideas clearly through technical writing, diagrams, and discussion.
+| Skill | Description                                                                                                                             |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| SK01  | Explain why modern scalable systems become difficult to scale as users, services, data, and dependencies grow.                          |
+| SK02  | Describe how coordinated services, databases, user interfaces, and third-party integrations fit together in large system architectures. |
+| SK03  | Analyze scalability challenges involving concurrency, performance, reliability, security, and system complexity.                        |
+| SK04  | Evaluate architectural tradeoffs in real-world web systems and explain how design choices affect scalability and maintainability.       |
+| SK05  | Interpret and discuss case studies of well-known web applications using appropriate technical vocabulary and architectural reasoning.   |
+| SK06  | Communicate system design ideas clearly through technical writing, diagrams, and discussion.                                            |
+| SK07  | Organize and contribute to effective engineering teams by defining roles, coordinating responsibilities, and communicating professionally. |
+| SK08  | Plan and execute short development sprints by translating project goals into scoped tasks, milestones, and target deliverables.         |
+| SK09  | Collaborate through shared workflows such as status updates, issue tracking, reviews, and handoffs to keep team work aligned and on schedule. |
 
 ## Engineering Toolchain
-- **Required hardware:** [Laptop and any minimum hardware expectations]
-- **Required software:** [Editors, runtimes, package managers, Docker, database tools, browser versions, etc.]
-- **Accounts:** [GitHub, campus systems, cloud credits, or other required services]
-- **Technical readings:** [Textbook, papers, online technical readings, or "no required textbook"]
-- **Engineering references:** [Official docs, lecture notes, reading pages, starter repositories]
+- **Required hardware:** A laptop
+- **Required software:** Editor (VS Code, Antigravity, Zed, etc.), Node.js, Python, Docker Desktop, Git, Chrome Browser, Up-to-Date MacOS/Windows/Linux.
+- **Accounts:** Campus Email, Canvas, GitHub, DockerHub
+- **Technical readings:** Lecture notes, provided book chapters, online articles and documents
+- **Engineering references:** Lecture notes, reference documentation, example code
 
 ## Delivery Model and Weekly Workload
-- The course may include lecture, discussion, in-class activities, quizzes, implementation exercises, delivery milestones, and office hours.
+- The course may include lecture, discussion, in-class activities, quizzes, implementation exercises, delivery milestones, and office hours. The modality depends on the semester: spring/fall -> in-person, summer -> online asynchronous.
 - Students are expected to complete technical readings, documentation review, and environment setup work before class when assigned.
-- Students should expect approximately [N] hours of work outside class each week on reading, implementation, studying, and project delivery.
+- Students should expect approximately 9 hours of work outside class each week on reading, implementation, studying, and project delivery.
 - Because this is an engineering-intensive course, students should expect to spend time troubleshooting, testing, and refining code before delivery.
 
 ## Delivery Roadmap
