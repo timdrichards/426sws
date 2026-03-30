@@ -1,11 +1,11 @@
 ---
 layout: layouts/base.njk
-title: COMPSCI 426 - Software Engineering
+title: COMPSCI 426 - Scalable Systems
 permalink: /
 ---
 
 # COMPSCI 426
 
-## Software Engineering
+## Scalable Systems
 
-Welcome to COMPSCI 426. This course covers the principles and practices of modern software engineering.
+A course on scalability.
