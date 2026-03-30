@@ -24,7 +24,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx @11ty/eleventy
+      - run: npx @11ty/eleventy --pathprefix=/426sws/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
