@@ -1,3 +1,8 @@
+---
+layout: layouts/base.njk
+title: COMPSCI 426
+---
+
 # k6 Analysis Guide
 
 This guide shows you how to read `k6` output as evidence about system behavior, not just as a wall of numbers.
@@ -367,15 +372,15 @@ Again, the most important metrics are:
 
 ## Comparing the Two Examples
 
-| Metric | Example 1: Strained Single Service | Example 2: Healthier Load-Balanced System | What it suggests |
-|---|---:|---:|---|
-| Average latency | 412 ms | 171 ms | requests are faster overall |
-| Median latency | 367 ms | 159 ms | the typical request is faster |
-| p95 latency | 931 ms | 267 ms | the slower user experience improved a lot |
-| Max latency | 2.14 s | 488 ms | fewer severe outliers |
-| Error rate | 2.13% | 0.00% | the healthier system is more reliable |
-| Requests/sec | 14.02 | 17.03 | the healthier system completes more work |
-| Iteration duration | 1.41 s | 1.17 s | each VU loop finishes sooner |
+| Metric             | Example 1: Strained Single Service | Example 2: Healthier Load-Balanced System | What it suggests                          |
+| ------------------ | ---------------------------------: | ----------------------------------------: | ----------------------------------------- |
+| Average latency    |                             412 ms |                                    171 ms | requests are faster overall               |
+| Median latency     |                             367 ms |                                    159 ms | the typical request is faster             |
+| p95 latency        |                             931 ms |                                    267 ms | the slower user experience improved a lot |
+| Max latency        |                             2.14 s |                                    488 ms | fewer severe outliers                     |
+| Error rate         |                              2.13% |                                     0.00% | the healthier system is more reliable     |
+| Requests/sec       |                              14.02 |                                     17.03 | the healthier system completes more work  |
+| Iteration duration |                             1.41 s |                                    1.17 s | each VU loop finishes sooner              |
 
 ### What is the big lesson?
 
