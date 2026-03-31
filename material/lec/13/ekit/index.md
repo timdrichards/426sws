@@ -7,7 +7,11 @@ title: COMPSCI 426
 
 ## Activity
 
-> This activity sequence walks you through three progressively more realistic deployment setups so you can see how architecture and traffic patterns affect performance.
+This activity sequence walks you through three progressively more realistic deployment setups so you can see how architecture and traffic patterns affect performance.
+
+## Setup
+
+Download and unzip [13-ekit.zip](13-ekit.zip). This folder contains a directory for each scenario described below. All of the exploration and discovery you do will be within these folders.
 
 ## Overview
 

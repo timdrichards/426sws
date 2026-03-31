@@ -45,4 +45,5 @@ services:
     volumes:
       - ./:/workspace
     working_dir: /workspace
+    entrypoint: []
     command: ["bash", "-lc", "while true; do sleep 3600; done"]
