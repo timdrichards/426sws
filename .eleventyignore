@@ -1,0 +1,8 @@
+node_modules/
+_site/
+dist/
+.cache/
+.env
+.DS_Store
+**/_README.md
+**/slides.md

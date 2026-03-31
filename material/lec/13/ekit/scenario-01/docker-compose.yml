@@ -1,0 +1,19 @@
+services:
+  service:
+    build:
+      context: ./app
+    environment:
+      PORT: 3000
+      DELAY_MS: 200
+    ports:
+      - "3000:3000"
+
+  tools:
+    build:
+      context: ./tools
+    depends_on:
+      - service
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    command: ["bash", "-lc", "while true; do sleep 3600; done"]

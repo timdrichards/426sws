@@ -8,4 +8,4 @@ permalink: /
 
 ## Scalable Systems
 
-A course on scalability.
+- [13 Gateways, Load Balancers, & Observability](material/lec/13)
