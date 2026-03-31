@@ -16,5 +16,6 @@ export default function (eleventyConfig) {
       includes: "_includes",
     },
     markdownTemplateEngine: "njk",
+    pathPrefix: "/426sws/",
   };
 }
