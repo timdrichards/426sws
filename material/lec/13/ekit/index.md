@@ -129,7 +129,7 @@ Write down:
 
 ### Before You Analyze Your Results
 
-Read [the k6 analysis guide](./k6-guide.md) before you write your conclusions. It walks through example output and shows you how to turn the raw numbers into an explanation of system behavior.
+Read [the k6 analysis guide](./k6-guide) before you write your conclusions. It walks through example output and shows you how to turn the raw numbers into an explanation of system behavior.
 
 ### Step 6: Reflect
 
@@ -263,7 +263,7 @@ Compare this scenario against Scenario 1 and write down:
 
 ### Before You Analyze Your Results
 
-Read [the k6 analysis guide](./k6-guide.md) before you write your conclusions. It explains which k6 metrics matter most and how to compare one system configuration to another.
+Read [the k6 analysis guide](./k6-guide) before you write your conclusions. It explains which k6 metrics matter most and how to compare one system configuration to another.
 
 ### Step 8: Reflect
 
@@ -397,7 +397,7 @@ Compare this scenario against Scenarios 1 and 2 and write down:
 
 ### Before You Analyze Your Results
 
-Read [the k6 analysis guide](./k6-guide.md) before you write your conclusions. It will help you explain not just what changed, but what those changes suggest about the system.
+Read [the k6 analysis guide](./k6-guide) before you write your conclusions. It will help you explain not just what changed, but what those changes suggest about the system.
 
 ### Step 8: Reflect
 
