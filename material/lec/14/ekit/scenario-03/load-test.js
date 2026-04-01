@@ -1,64 +1,79 @@
 import http from 'k6/http';
+import { check } from 'k6';
 
 // ===========================================================================
-// WHY THIS LOAD TEST IS DIFFERENT FROM LAST TIME
+// SCENARIO 3: BREAKING THE SYSTEM
 // ===========================================================================
 //
-// In the previous activity (Lecture 13), the load test looked like this:
+// Scenario 2 showed that 3 replicas behind a load balancer handle 100 VUs
+// better than a single replica. But every system has a ceiling. This test
+// finds it.
 //
-//   export const options = { vus: 20, duration: '30s' };
-//   export default function () {
-//     http.get(targetUrl);
-//     sleep(1);   // <-- each VU waits 1 full second between requests
-//   }
+// Instead of a fixed number of VUs, this test uses "stages" to ramp up
+// traffic over time:
 //
-// That test produced nearly identical results across all three scenarios
-// (single replica, 3 replicas, 3 replicas + load balancer). The k6 numbers
-// did not change because the test never actually stressed the server.
+//   10s at 100 VUs  -- warm-up (the system can handle this from Scenario 3)
+//   20s to 300 VUs  -- increasing pressure
+//   20s to 500 VUs  -- heavy pressure
+//   20s to 800 VUs  -- extreme pressure
+//   10s back to 0   -- cool-down
 //
-// Two problems made the old test ineffective:
+// At some point during the ramp, you will see:
+//   - request duration spike (requests queuing far longer than 500ms)
+//   - error rate climb above 0% (connection refused, timeouts)
+//   - throughput plateau or drop (the system cannot process requests faster)
 //
-// 1. sleep(1) throttled the CLIENT, not the server.
-//    Each VU sent one request (~200ms), then sat idle for 1 second. With 20
-//    VUs, the server only saw ~16 requests/sec. That is trivial load for
-//    even a single Node.js process. The bottleneck was k6 pacing itself,
-//    not the server being overwhelmed. Adding replicas to an un-saturated
-//    server changes nothing measurable.
+// The containers in this scenario are also resource-constrained:
+//   - 64MB memory limit per service replica
+//   - 0.5 CPU per service replica
 //
-// 2. The server delay was ASYNC (non-blocking).
-//    The old server used: await sleep(delayMs)  -- a setTimeout wrapped in
-//    a Promise. Node.js handles thousands of concurrent timers without
-//    breaking a sweat because setTimeout does not block the event loop.
-//    Even without the k6 sleep, 20 concurrent async sleeps is nothing for
-//    a single Node process.
+// These limits simulate a production environment where containers do not
+// have unlimited resources. Under enough pressure, a container may run out
+// of memory and get killed by Docker (OOMKilled), or the CPU throttling
+// may make the 500ms blocking work take even longer.
 //
-// WHAT CHANGED:
+// WHY THIS MATTERS:
 //
-// - The server now uses CPU-bound blocking work instead of async sleep.
-//   A single Node process can only handle one request at a time because
-//   the event loop is blocked for 500ms per request (~2 req/s max).
-//
-// - This load test removes sleep() entirely and increases VUs to 100.
-//   k6 now sends requests as fast as the server can answer them, which
-//   means the server is the bottleneck, not the test client.
-//
-// This scenario (3 replicas + Caddy load balancer) should now show ~3x
-// the throughput and ~1/3 the latency compared to Scenarios 1 and 2,
-// because Caddy distributes requests across 3 independent event loops
-// that each handle CPU-bound work in parallel.
+// Knowing that load balancing helps is not enough. You also need to know
+// WHERE the system breaks so you can set alerts, plan capacity, and define
+// SLOs (Service Level Objectives). The thresholds below define what
+// "acceptable" looks like. When the test finishes, k6 will tell you
+// whether the system met those targets or failed them.
 // ===========================================================================
 
 export const options = {
-  vus: 100,
-  duration: '30s',
+  stages: [
+    { duration: '10s', target: 100 },  // warm-up: same load as Scenario 2
+    { duration: '20s', target: 300 },   // ramp: increasing pressure
+    { duration: '20s', target: 500 },   // ramp: heavy pressure
+    { duration: '20s', target: 800 },   // ramp: extreme pressure
+    { duration: '10s', target: 0 },     // cool-down
+  ],
+
+  // Thresholds define pass/fail criteria. k6 will report whether the system
+  // met these targets. These are intentionally set to values that should be
+  // achievable at low VU counts but will likely fail under extreme load.
+  thresholds: {
+    http_req_duration: ['p(95)<2000'],  // p95 latency under 2 seconds
+    http_req_failed: ['rate<0.10'],     // fewer than 10% of requests fail
+  },
 };
 
 const targetUrl = __ENV.TARGET_URL || 'http://caddy/';
 
 export default function () {
-  // No sleep() -- send requests as fast as the server can handle them.
-  // Traffic goes through Caddy, which round-robins across all 3 replicas.
-  // Each replica has its own event loop, so the CPU-bound work runs in
-  // parallel across 3 processes instead of queuing behind one.
-  http.get(targetUrl);
+  const res = http.get(targetUrl);
+
+  // check() records pass/fail rates in k6 output so you can see at what
+  // point responses stop being successful.
+  check(res, {
+    'status is 200': (r) => r.status === 200,
+    'response has hostname': (r) => {
+      try {
+        return JSON.parse(r.body).hostname !== undefined;
+      } catch {
+        return false;
+      }
+    },
+  });
 }

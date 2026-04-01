@@ -7,14 +7,20 @@ const delayMs = Number(process.env.DELAY_MS || 200);
 const startedAt = new Date().toISOString();
 let requestCount = 0;
 
-// CPU-bound blocking work. Unlike setTimeout (which is async and non-blocking),
-// this function occupies the Node.js event loop for the entire duration. A single
-// Node process can only run one of these at a time, so concurrent requests must
-// wait in line. This simulates a handler that does real computation (image
-// processing, encryption, data transformation) rather than just waiting on I/O.
+// CPU-bound blocking work. Blocks the event loop for the entire duration.
 function cpuWork(ms) {
   const end = Date.now() + ms;
   while (Date.now() < end) {} // busy-wait blocks the event loop
+}
+
+// Track memory usage so students can see it climb under pressure.
+function memUsage() {
+  const mem = process.memoryUsage();
+  return {
+    rss: `${Math.round(mem.rss / 1024 / 1024)}MB`,
+    heapUsed: `${Math.round(mem.heapUsed / 1024 / 1024)}MB`,
+    heapTotal: `${Math.round(mem.heapTotal / 1024 / 1024)}MB`,
+  };
 }
 
 const server = http.createServer((req, res) => {
@@ -25,6 +31,7 @@ const server = http.createServer((req, res) => {
       hostname: os.hostname(),
       requestCount,
       startedAt,
+      memory: memUsage(),
     };
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -55,5 +62,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`load-balanced service listening on ${port}`);
+  console.log(`stress-test service listening on ${port}`);
 });

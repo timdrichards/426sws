@@ -55,5 +55,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`scaled service listening on ${port}`);
+  console.log(`load-balanced service listening on ${port}`);
 });

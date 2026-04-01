@@ -1,0 +1,19 @@
+slides_dir := "deck"
+slides_src := slides_dir / "slides.md"
+ekit_dir := "ekit"
+zip_file := ekit_dir / "14-ekit.zip"
+
+# build everything
+all: slides pdf zip
+
+# build slide deck html
+slides:
+    npx @marp-team/marp-cli {{slides_src}} -o {{slides_dir}}/index.html
+
+# build slide deck pdf
+pdf:
+    npx @marp-team/marp-cli {{slides_src}} --pdf --allow-local-files -o {{slides_dir}}/14-load-testing.pdf
+
+# build ekit zip with only the scenario folders
+zip:
+    cd {{ekit_dir}} && zip -r ../{{zip_file}} scenario-*/

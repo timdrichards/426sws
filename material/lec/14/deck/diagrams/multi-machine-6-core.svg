@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" font-family="system-ui, sans-serif" font-size="13">
+
+  <!-- Title -->
+  <text x="450" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a1a">Five Commodity Machines: 6 Cores Each</text>
+  <text x="450" y="48" text-anchor="middle" font-size="12" fill="#888">30 replicas across 30 cores = 60 req/s</text>
+
+  <!-- Global LB -->
+  <rect x="370" y="62" width="160" height="44" rx="8" fill="#e6f4ea" stroke="#34a853" stroke-width="2"/>
+  <text x="450" y="89" text-anchor="middle" font-weight="bold" font-size="12" fill="#1a1a1a">Global Load Balancer</text>
+
+  <!-- Arrows -->
+  <line x1="400" y1="106" x2="90" y2="148" stroke="#555" stroke-width="1.5"/>
+  <line x1="425" y1="106" x2="270" y2="148" stroke="#555" stroke-width="1.5"/>
+  <line x1="450" y1="106" x2="450" y2="148" stroke="#555" stroke-width="1.5"/>
+  <line x1="475" y1="106" x2="630" y2="148" stroke="#555" stroke-width="1.5"/>
+  <line x1="500" y1="106" x2="810" y2="148" stroke="#555" stroke-width="1.5"/>
+
+  <!-- Machine A -->
+  <rect x="10" y="148" width="160" height="230" rx="10" fill="#e8f0fe" stroke="#4285f4" stroke-width="2"/>
+  <text x="90" y="172" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a1a1a">Machine A</text>
+  <rect x="22" y="184" width="136" height="28" rx="4" fill="#4285f4"/><text x="90" y="203" text-anchor="middle" font-size="10" fill="white">Core 1 - replica</text>
+  <rect x="22" y="216" width="136" height="28" rx="4" fill="#4285f4"/><text x="90" y="235" text-anchor="middle" font-size="10" fill="white">Core 2 - replica</text>
+  <rect x="22" y="248" width="136" height="28" rx="4" fill="#4285f4"/><text x="90" y="267" text-anchor="middle" font-size="10" fill="white">Core 3 - replica</text>
+  <rect x="22" y="280" width="136" height="28" rx="4" fill="#4285f4"/><text x="90" y="299" text-anchor="middle" font-size="10" fill="white">Core 4 - replica</text>
+  <rect x="22" y="312" width="136" height="28" rx="4" fill="#4285f4"/><text x="90" y="331" text-anchor="middle" font-size="10" fill="white">Core 5 - replica</text>
+  <rect x="22" y="344" width="136" height="28" rx="4" fill="#4285f4"/><text x="90" y="363" text-anchor="middle" font-size="10" fill="white">Core 6 - replica</text>
+
+  <!-- Machine B -->
+  <rect x="190" y="148" width="160" height="230" rx="10" fill="#e8f0fe" stroke="#4285f4" stroke-width="2"/>
+  <text x="270" y="172" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a1a1a">Machine B</text>
+  <rect x="202" y="184" width="136" height="28" rx="4" fill="#4285f4"/><text x="270" y="203" text-anchor="middle" font-size="10" fill="white">Core 1 - replica</text>
+  <rect x="202" y="216" width="136" height="28" rx="4" fill="#4285f4"/><text x="270" y="235" text-anchor="middle" font-size="10" fill="white">Core 2 - replica</text>
+  <rect x="202" y="248" width="136" height="28" rx="4" fill="#4285f4"/><text x="270" y="267" text-anchor="middle" font-size="10" fill="white">Core 3 - replica</text>
+  <rect x="202" y="280" width="136" height="28" rx="4" fill="#4285f4"/><text x="270" y="299" text-anchor="middle" font-size="10" fill="white">Core 4 - replica</text>
+  <rect x="202" y="312" width="136" height="28" rx="4" fill="#4285f4"/><text x="270" y="331" text-anchor="middle" font-size="10" fill="white">Core 5 - replica</text>
+  <rect x="202" y="344" width="136" height="28" rx="4" fill="#4285f4"/><text x="270" y="363" text-anchor="middle" font-size="10" fill="white">Core 6 - replica</text>
+
+  <!-- Machine C -->
+  <rect x="370" y="148" width="160" height="230" rx="10" fill="#e8f0fe" stroke="#4285f4" stroke-width="2"/>
+  <text x="450" y="172" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a1a1a">Machine C</text>
+  <rect x="382" y="184" width="136" height="28" rx="4" fill="#4285f4"/><text x="450" y="203" text-anchor="middle" font-size="10" fill="white">Core 1 - replica</text>
+  <rect x="382" y="216" width="136" height="28" rx="4" fill="#4285f4"/><text x="450" y="235" text-anchor="middle" font-size="10" fill="white">Core 2 - replica</text>
+  <rect x="382" y="248" width="136" height="28" rx="4" fill="#4285f4"/><text x="450" y="267" text-anchor="middle" font-size="10" fill="white">Core 3 - replica</text>
+  <rect x="382" y="280" width="136" height="28" rx="4" fill="#4285f4"/><text x="450" y="299" text-anchor="middle" font-size="10" fill="white">Core 4 - replica</text>
+  <rect x="382" y="312" width="136" height="28" rx="4" fill="#4285f4"/><text x="450" y="331" text-anchor="middle" font-size="10" fill="white">Core 5 - replica</text>
+  <rect x="382" y="344" width="136" height="28" rx="4" fill="#4285f4"/><text x="450" y="363" text-anchor="middle" font-size="10" fill="white">Core 6 - replica</text>
+
+  <!-- Machine D -->
+  <rect x="550" y="148" width="160" height="230" rx="10" fill="#e8f0fe" stroke="#4285f4" stroke-width="2"/>
+  <text x="630" y="172" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a1a1a">Machine D</text>
+  <rect x="562" y="184" width="136" height="28" rx="4" fill="#4285f4"/><text x="630" y="203" text-anchor="middle" font-size="10" fill="white">Core 1 - replica</text>
+  <rect x="562" y="216" width="136" height="28" rx="4" fill="#4285f4"/><text x="630" y="235" text-anchor="middle" font-size="10" fill="white">Core 2 - replica</text>
+  <rect x="562" y="248" width="136" height="28" rx="4" fill="#4285f4"/><text x="630" y="267" text-anchor="middle" font-size="10" fill="white">Core 3 - replica</text>
+  <rect x="562" y="280" width="136" height="28" rx="4" fill="#4285f4"/><text x="630" y="299" text-anchor="middle" font-size="10" fill="white">Core 4 - replica</text>
+  <rect x="562" y="312" width="136" height="28" rx="4" fill="#4285f4"/><text x="630" y="331" text-anchor="middle" font-size="10" fill="white">Core 5 - replica</text>
+  <rect x="562" y="344" width="136" height="28" rx="4" fill="#4285f4"/><text x="630" y="363" text-anchor="middle" font-size="10" fill="white">Core 6 - replica</text>
+
+  <!-- Machine E -->
+  <rect x="730" y="148" width="160" height="230" rx="10" fill="#e8f0fe" stroke="#4285f4" stroke-width="2"/>
+  <text x="810" y="172" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a1a1a">Machine E</text>
+  <rect x="742" y="184" width="136" height="28" rx="4" fill="#4285f4"/><text x="810" y="203" text-anchor="middle" font-size="10" fill="white">Core 1 - replica</text>
+  <rect x="742" y="216" width="136" height="28" rx="4" fill="#4285f4"/><text x="810" y="235" text-anchor="middle" font-size="10" fill="white">Core 2 - replica</text>
+  <rect x="742" y="248" width="136" height="28" rx="4" fill="#4285f4"/><text x="810" y="267" text-anchor="middle" font-size="10" fill="white">Core 3 - replica</text>
+  <rect x="742" y="280" width="136" height="28" rx="4" fill="#4285f4"/><text x="810" y="299" text-anchor="middle" font-size="10" fill="white">Core 4 - replica</text>
+  <rect x="742" y="312" width="136" height="28" rx="4" fill="#4285f4"/><text x="810" y="331" text-anchor="middle" font-size="10" fill="white">Core 5 - replica</text>
+  <rect x="742" y="344" width="136" height="28" rx="4" fill="#4285f4"/><text x="810" y="363" text-anchor="middle" font-size="10" fill="white">Core 6 - replica</text>
+
+  <!-- Total -->
+  <text x="450" y="402" text-anchor="middle" font-size="14" font-weight="bold" fill="#34a853">5 machines x 12 req/s = 60 req/s</text>
+  <text x="450" y="418" text-anchor="middle" font-size="12" fill="#555">30 total cores, 30 replicas, zero contention</text>
+</svg>

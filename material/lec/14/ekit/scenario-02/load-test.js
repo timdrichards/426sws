@@ -42,9 +42,10 @@ import http from 'k6/http';
 //   k6 now sends requests as fast as the server can answer them, which
 //   means the server is the bottleneck, not the test client.
 //
-// Even with these changes, this scenario (3 replicas, no load balancer)
-// should still look similar to Scenario 1 -- because all 100 VUs are
-// aimed at service-1 only. The other two replicas sit idle.
+// This scenario (3 replicas + Caddy load balancer) should now show ~3x
+// the throughput and ~1/3 the latency compared to Scenario 1, because
+// Caddy distributes requests across 3 independent event loops that each
+// handle CPU-bound work in parallel.
 // ===========================================================================
 
 export const options = {
@@ -52,12 +53,12 @@ export const options = {
   duration: '30s',
 };
 
-const targetUrl = __ENV.TARGET_URL || 'http://service-1:3000/';
+const targetUrl = __ENV.TARGET_URL || 'http://caddy/';
 
 export default function () {
   // No sleep() -- send requests as fast as the server can handle them.
-  // All traffic still goes to service-1 only, so the extra replicas do
-  // not help. Compare these results against Scenario 3 to see the
-  // difference a load balancer makes.
+  // Traffic goes through Caddy, which round-robins across all 3 replicas.
+  // Each replica has its own event loop, so the CPU-bound work runs in
+  // parallel across 3 processes instead of queuing behind one.
   http.get(targetUrl);
 }

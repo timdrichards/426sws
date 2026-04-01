@@ -1,46 +1,46 @@
-# Scenario 3: Load Balancing with Caddy
+# Scenario 3: Breaking the System
 
-## Observations (3 replicas)
+## Memory Baselines (before test)
 
-- requests/sec:
+- service-1 rss:
+- service-2 rss:
+- service-3 rss:
+
+## Observations
+
+- requests/sec (beginning of test):
+- requests/sec (end of test):
 - p(95) latency:
 - error rate:
-- evidence that requests are being distributed:
+- thresholds:
+  - http_req_duration p(95) < 2s: pass / fail
+  - http_req_failed rate < 10%: pass / fail
+- did any containers crash or restart?
 - request counts per replica:
   - service-1:
   - service-2:
   - service-3:
 
+## Memory After Test
+
+- service-1 rss:
+- service-2 rss:
+- service-3 rss:
+
 ## Reflection
 
-- How do your results compare with the earlier scenarios?
+- At roughly how many VUs did the system start to degrade?
 
 > Your answer here.
 
-- What evidence do you see that load balancing is actually happening?
+- What was the first sign of trouble in the k6 output?
 
 > Your answer here.
 
-- Why did the same architectural setup (3 replicas + Caddy) show no improvement last time but a clear improvement this time?
+- If this were a real service, what would you do with this information? Think about alerts, autoscaling triggers, and capacity planning.
 
 > Your answer here.
 
-## Scaling Experiment
-
-Record your p(95) values in `scaling-results.csv` in this directory.
-
-- Does p(95) keep improving as you add replicas? At what point does it stop improving?
-
-> Your answer here.
-
-- Does p(95) ever get *worse* as you add more replicas? If so, at what replica count?
-
-> Your answer here.
-
-- Why would adding more replicas eventually stop helping or make things worse? What resource on your machine are the replicas competing for?
-
-> Your answer here.
-
-- If you were running this in production and needed lower latency, what would you do once adding replicas on one machine stopped helping?
+- How does this connect to the idea of an [SLO](../../slo)? If your SLO says "p95 latency under 2 seconds," at what traffic level would you violate that SLO?
 
 > Your answer here.

@@ -3,9 +3,11 @@ layout: layouts/base.njk
 title: COMPSCI 426 - Scalable Systems
 ---
 
-# 13 Gateways, Load Balancers, & Observability
+# 14 Load Testing That Actually Tests Load
 
-In this lecture, we will explore how gateways, load balancers, and observability tools shape the behavior of scalable systems. We will approach the topic through an experiential learning lens: instead of only defining the concepts, we will compare concrete system setups, run load tests, observe the resulting metrics, and use that evidence to explain what the architecture is actually doing. The goal is to connect ideas like replication, routing, and traffic distribution to behavior you can directly measure and interpret.
+In this lecture, we revisit the scaling and load balancing scenarios from Lecture 13 with a critical correction: a load test designed to actually saturate the server. Last time, the k6 results were nearly identical across all scenarios because the test never generated enough pressure to expose the bottleneck. This time, we fix the server to do CPU-bound blocking work and fix the load test to send traffic at full speed. Students will observe a clear, measurable difference between a single replica and three replicas behind a load balancer, then push the system to its breaking point.
 
-- [Slides](deck) ([pdf](deck/13-gateway.pdf))
+- [Slides](deck) ([pdf](deck/14-load-testing.pdf))
 - [Activity](ekit)
+- [k6 Analysis Guide](ekit/k6-guide)
+- [SLO Reference](ekit/slo)

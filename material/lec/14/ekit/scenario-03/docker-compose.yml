@@ -7,6 +7,8 @@ services:
       DELAY_MS: 500
     expose:
       - "3000"
+    mem_limit: 64m
+    cpus: 0.5
 
   service-2:
     build:
@@ -16,6 +18,8 @@ services:
       DELAY_MS: 500
     expose:
       - "3000"
+    mem_limit: 64m
+    cpus: 0.5
 
   service-3:
     build:
@@ -25,6 +29,8 @@ services:
       DELAY_MS: 500
     expose:
       - "3000"
+    mem_limit: 64m
+    cpus: 0.5
 
   caddy:
     image: caddy:2-alpine
