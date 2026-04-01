@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CSV="${1:-results/scaling-results.csv}"
+OUTPUT="${CSV%.*}.png"
+
+if [ ! -f "$CSV" ]; then
+  echo "Error: $CSV not found" >&2
+  exit 1
+fi
+
+gnuplot -e "
+  set datafile separator ',';
+  set terminal png size 800,400 font 'DejaVu Sans,12';
+  set output '$OUTPUT';
+  set xlabel 'Total Replicas';
+  set ylabel 'p95 Latency (ms)';
+  set title 'p95 Latency vs Replica Count';
+  set grid;
+  set key off;
+  plot '$CSV' skip 1 using 2:3 with linespoints linewidth 2 pointsize 1.5 pointtype 7
+"
+
+echo "Graph saved to $OUTPUT"
