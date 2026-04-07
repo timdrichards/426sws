@@ -36,13 +36,36 @@ If you do not have a team yet, let the instructor know now.
 
 As a team, pick one of the five systems from the [Project Systems](../../docs/systems/) page. Each system has a different domain and set of core services, but the same technical requirements. Pick the one that sounds most interesting to your team. You will be building the same core architecture and features regardless of which system you choose, so there are no technical advantages or disadvantages to any choice.
 
-### 3. Fork the Starter Repository
+### 3. Fork the Starter Repository and Create `dev` Branch
 
 One team member — and only one — forks the starter repo. See the [Starter Repository](../../docs/starter/) page for step-by-step instructions. Add every other team member as a collaborator with push access before leaving class.
 
-### 4. Clone, Create `dev`, and Verify
+That same team member creates a `dev` branch and pushes it to GitHub. This is where you will do all your work for the project. The `main` branch is reserved for stable code that has been demoed to the teaching staff. Please see the [Git Workflow](../../docs/git/) guide for more details on how to use branches and commits for this project.
 
-Every team member clones the fork, creates the `dev` branch, and confirms that `docker compose up --build` starts Holmes without errors.
+#### Upstream Updates
+
+On occassion, the course staff may push updates to the starter repo with bug fixes, improvements, or new documentation. If this happens, one team member can pull those changes into your fork with:
+
+```bash
+git remote add upstream https://github.com/<your-team>/<your-fork>.git
+git fetch upstream
+git checkout dev
+git merge upstream/main
+git push origin dev
+```
+
+Everyone else on the team should then pull those changes into their local `dev` branch with:
+
+```bash
+git checkout dev
+git pull origin dev
+```
+
+You can also do this through the GitHub web interface by having one team member click the "Fetch upstream" button on your fork's main page. After you do this, make sure to merge the changes into your `dev` branch which you can also do through the GitHub web interface by creating a pull request from `main` to `dev`. Once you do that, you can merge the pull request and then pull the changes to your local `dev` branch using `git pull origin dev`.
+
+### 4. Clone and Verify
+
+Every team member clones the fork created in the previous step and confirms that `docker compose up --build` starts the Holmes service without errors.
 
 ```bash
 git clone https://github.com/<your-team>/<your-fork>.git
