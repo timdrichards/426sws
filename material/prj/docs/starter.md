@@ -1,5 +1,5 @@
 ---
-title: COMPSCI 426 - Project -- Starter Repository
+title: Project → Starter Repository
 navTitle: Starter
 navOrder: 4
 ---

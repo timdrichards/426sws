@@ -1,5 +1,5 @@
 ---
-title: COMPSCI 426 - Project -- Simulating Services and Data
+title: Project → Simulating Services and Data
 navTitle: Simulation
 navOrder: 8
 ---

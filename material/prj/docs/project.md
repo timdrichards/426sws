@@ -1,5 +1,5 @@
 ---
-title: COMPSCI 426 - Project -- Guide
+title: Project → Guide
 navTitle: Guide
 navOrder: 2
 ---
@@ -16,21 +16,21 @@ The project is organized into **four one-week sprints**. Each sprint has a clear
 
 ## Schedule at a Glance
 
-| Date        | Day          | Session                             | What Happens                                                  |
-| ----------- | ------------ | ----------------------------------- | ------------------------------------------------------------- |
+| Date        | Day          | Session                             | What Happens                                                                 |
+| ----------- | ------------ | ----------------------------------- | ---------------------------------------------------------------------------- |
 | 04.07       | Tuesday      | Project Kickoff                     | Form teams, choose a system, fork the starter repo, write your Sprint 1 plan |
-| 04.09       | Thursday     | Sprint 1 Work Session               | In-class work time, instructor and TA check-ins               |
-| **04.14**   | **Tuesday**  | **Sprint 1 Due / Sprint 2 Kickoff** | **Sprint 1 submission due before class.** Sprint 2 planning   |
-| 04.14–04.16 | Tue–Thu      | Sprint 1 Demo Window                | Schedule and complete your Sprint 1 demo with a TA            |
-| 04.16       | Thursday     | Sprint 2 Work Session               | In-class work time, instructor and TA check-ins               |
-| **04.21**   | **Tuesday**  | **Sprint 2 Due / Sprint 3 Kickoff** | **Sprint 2 submission due before class.** Sprint 3 planning   |
-| 04.21–04.23 | Tue–Thu      | Sprint 2 Demo Window                | Schedule and complete your Sprint 2 demo with a TA            |
-| 04.23       | Thursday     | Sprint 3 Work Session               | In-class work time, instructor and TA check-ins               |
-| **04.28**   | **Tuesday**  | **Sprint 3 Due / Sprint 4 Kickoff** | **Sprint 3 submission due before class.** Sprint 4 planning   |
-| 04.28–04.30 | Tue–Thu      | Sprint 3 Demo Window                | Schedule and complete your Sprint 3 demo with a TA            |
-| 04.30       | Thursday     | Sprint 4 Work Session               | In-class work time, instructor and TA check-ins               |
-| **05.05**   | **Tuesday**  | **Sprint 4 Due**                    | **Sprint 4 submission due before class.**                     |
-| **05.07**   | **Thursday** | **Final Demos / Project Wrap-Up**   | **Live demos to the class.** Peer evaluations due end of day. |
+| 04.09       | Thursday     | Sprint 1 Work Session               | In-class work time, instructor and TA check-ins                              |
+| **04.14**   | **Tuesday**  | **Sprint 1 Due / Sprint 2 Kickoff** | **Sprint 1 submission due before class.** Sprint 2 planning                  |
+| 04.14–04.16 | Tue–Thu      | Sprint 1 Demo Window                | Schedule and complete your Sprint 1 demo with a TA                           |
+| 04.16       | Thursday     | Sprint 2 Work Session               | In-class work time, instructor and TA check-ins                              |
+| **04.21**   | **Tuesday**  | **Sprint 2 Due / Sprint 3 Kickoff** | **Sprint 2 submission due before class.** Sprint 3 planning                  |
+| 04.21–04.23 | Tue–Thu      | Sprint 2 Demo Window                | Schedule and complete your Sprint 2 demo with a TA                           |
+| 04.23       | Thursday     | Sprint 3 Work Session               | In-class work time, instructor and TA check-ins                              |
+| **04.28**   | **Tuesday**  | **Sprint 3 Due / Sprint 4 Kickoff** | **Sprint 3 submission due before class.** Sprint 4 planning                  |
+| 04.28–04.30 | Tue–Thu      | Sprint 3 Demo Window                | Schedule and complete your Sprint 3 demo with a TA                           |
+| 04.30       | Thursday     | Sprint 4 Work Session               | In-class work time, instructor and TA check-ins                              |
+| **05.05**   | **Tuesday**  | **Sprint 4 Due**                    | **Sprint 4 submission due before class.**                                    |
+| **05.07**   | **Thursday** | **Final Demos / Project Wrap-Up**   | **Live demos to the class.** Peer evaluations due end of day.                |
 
 ---
 
@@ -337,12 +337,15 @@ Keep it focused. The k6 analysis is the most important section — do not just p
 
 ```markdown
 # Sprint [N] Report — [Team Name]
+
 **Dates:** MM.DD → MM.DD
 
 ## What We Planned to Do
+
 [Copy or summarize your SPRINT-X-PLAN.md sprint goal and ownership table]
 
 ## What We Actually Delivered
+
 [Short description of what is working at the tagged commit. Be specific — name
 the endpoints, workers, or pipelines that are functional.]
 
@@ -363,7 +366,7 @@ the endpoints, workers, or pipelines that are functional.]
 numbers mean — do not just paste raw output.]
 
 | Metric | Value |
-|--------|-------|
+| ------ | ----- |
 | p50    |       |
 | p95    |       |
 | p99    |       |
@@ -373,9 +376,11 @@ numbers mean — do not just paste raw output.]
 changed and why.]
 
 ## What Went Wrong or Changed
+
 [Anything you planned but could not finish, and why. If nothing went wrong, say so.]
 
 ## What We Will Do Next Sprint
+
 [Your plan for Sprint N+1. Not needed in Sprint 4.]
 ```
 
@@ -385,9 +390,11 @@ The following is an example for the same 3-person team (System 1, Sprint 1) afte
 
 ```markdown
 # Sprint 1 Report — Team Nucleus
+
 **Dates:** 04.07 → 04.14
 
 ## What We Planned to Do
+
 Get all three core services running in Docker Compose, connected to their databases,
 and talking to each other via at least one synchronous HTTP call. Establish a k6 baseline.
 
@@ -395,6 +402,7 @@ Alice owned event-catalog-service, Bob owned ticket-purchase-service, Carol owne
 payment-service and the Docker Compose configuration.
 
 ## What We Actually Delivered
+
 All three services start cleanly from `docker compose up`. The Event Catalog Service
 exposes GET /events and GET /events/:id and reads from its Postgres database. The
 Ticket Purchase Service accepts POST /purchases and calls the Payment Service
@@ -423,11 +431,11 @@ Redis container, and wrote the Sprint 1 k6 baseline test.
 Baseline load test against GET /events with 20 virtual users, 30-second ramp-up,
 30-second sustained load. No caching in place — every request hits Postgres directly.
 
-| Metric | Value   |
-|--------|---------|
-| p50    | 18 ms   |
-| p95    | 74 ms   |
-| p99    | 112 ms  |
+| Metric | Value     |
+| ------ | --------- |
+| p50    | 18 ms     |
+| p95    | 74 ms     |
+| p99    | 112 ms    |
 | RPS    | 847 req/s |
 
 Response times are acceptable at this scale, but p95 and p99 show significant
@@ -436,12 +444,14 @@ and p99 drop sharply in Sprint 2 once Redis caching is in place for event detail
 since the same popular events are requested repeatedly in the test.
 
 ## What Went Wrong or Changed
+
 The Redis cache layer was not wired up this sprint — Alice ran out of time after
 debugging a Postgres connection issue that turned out to be a missing environment
 variable in the Docker Compose file. We are moving that work to Sprint 2, where
 it is a required deliverable anyway.
 
 ## What We Will Do Next Sprint
+
 Sprint 2 will add the Redis cache for event detail lookups, implement the async
 purchase confirmation pipeline using Redis pub/sub, and add the Notification Service
 worker. We will also write the two Sprint 2 k6 tests (caching comparison and async

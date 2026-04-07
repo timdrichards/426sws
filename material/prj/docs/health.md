@@ -1,5 +1,5 @@
 ---
-title: COMPSCI 426 - Project -- Health Endpoints and System Monitoring
+title: Project → Health Endpoints and System Monitoring
 navTitle: Health Endpoints
 navOrder: 6
 ---
@@ -27,15 +27,15 @@ Health endpoints also drive Docker Compose's built-in restart and dependency log
 
 Your `/health` endpoint should check every external dependency your service relies on. A service that is running but cannot reach its database is not healthy.
 
-| Dependency | What to check |
-|---|---|
-| PostgreSQL | Open a connection and run `SELECT 1` |
-| Redis | Send a `PING` command and verify the response is `PONG` |
-| Queue depth | Read the length of the queues your service owns; flag if unusually deep |
-| Dead letter queue depth | Read the DLQ length; any non-zero value is worth surfacing |
-| Last processed job (workers) | Record the timestamp of the last successful job; flag if too long ago |
+| Dependency                   | What to check                                                           |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| PostgreSQL                   | Open a connection and run `SELECT 1`                                    |
+| Redis                        | Send a `PING` command and verify the response is `PONG`                 |
+| Queue depth                  | Read the length of the queues your service owns; flag if unusually deep |
+| Dead letter queue depth      | Read the DLQ length; any non-zero value is worth surfacing              |
+| Last processed job (workers) | Record the timestamp of the last successful job; flag if too long ago   |
 
-You do not need to check dependencies owned by *other* services. The Order Service should check its own database and Redis — not the Restaurant Service's database.
+You do not need to check dependencies owned by _other_ services. The Order Service should check its own database and Redis — not the Restaurant Service's database.
 
 ---
 
@@ -53,7 +53,7 @@ Use a consistent JSON format across all your services. Consistency matters becau
   "uptime_seconds": 3612,
   "checks": {
     "database": { "status": "healthy", "latency_ms": 2 },
-    "redis":    { "status": "healthy", "latency_ms": 1 }
+    "redis": { "status": "healthy", "latency_ms": 1 }
   }
 }
 ```
@@ -68,7 +68,7 @@ Use a consistent JSON format across all your services. Consistency matters becau
   "uptime_seconds": 3612,
   "checks": {
     "database": { "status": "unhealthy", "error": "connection refused" },
-    "redis":    { "status": "healthy",   "latency_ms": 1 }
+    "redis": { "status": "healthy", "latency_ms": 1 }
   }
 }
 ```
@@ -82,40 +82,40 @@ The HTTP status code is what matters most — 200 means healthy, 503 means somet
 ### HTTP Service with Database and Redis
 
 ```javascript
-import express from 'express';
-import pg from 'pg';
-import { createClient } from 'redis';
+import express from 'express'
+import pg from 'pg'
+import { createClient } from 'redis'
 
-const app = express();
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const redis = createClient({ url: process.env.REDIS_URL });
-await redis.connect();
+const app = express()
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
+const redis = createClient({ url: process.env.REDIS_URL })
+await redis.connect()
 
-const startTime = Date.now();
+const startTime = Date.now()
 
 app.get('/health', async (req, res) => {
-  const checks = {};
-  let healthy = true;
+  const checks = {}
+  let healthy = true
 
   // Check PostgreSQL
-  const dbStart = Date.now();
+  const dbStart = Date.now()
   try {
-    await pool.query('SELECT 1');
-    checks.database = { status: 'healthy', latency_ms: Date.now() - dbStart };
+    await pool.query('SELECT 1')
+    checks.database = { status: 'healthy', latency_ms: Date.now() - dbStart }
   } catch (err) {
-    checks.database = { status: 'unhealthy', error: err.message };
-    healthy = false;
+    checks.database = { status: 'unhealthy', error: err.message }
+    healthy = false
   }
 
   // Check Redis
-  const redisStart = Date.now();
+  const redisStart = Date.now()
   try {
-    const pong = await redis.ping();
-    if (pong !== 'PONG') throw new Error(`unexpected response: ${pong}`);
-    checks.redis = { status: 'healthy', latency_ms: Date.now() - redisStart };
+    const pong = await redis.ping()
+    if (pong !== 'PONG') throw new Error(`unexpected response: ${pong}`)
+    checks.redis = { status: 'healthy', latency_ms: Date.now() - redisStart }
   } catch (err) {
-    checks.redis = { status: 'unhealthy', error: err.message };
-    healthy = false;
+    checks.redis = { status: 'unhealthy', error: err.message }
+    healthy = false
   }
 
   const body = {
@@ -124,10 +124,10 @@ app.get('/health', async (req, res) => {
     timestamp: new Date().toISOString(),
     uptime_seconds: Math.floor((Date.now() - startTime) / 1000),
     checks,
-  };
+  }
 
-  res.status(healthy ? 200 : 503).json(body);
-});
+  res.status(healthy ? 200 : 503).json(body)
+})
 ```
 
 ### Worker with Queue Depth and Last Job Time
@@ -135,62 +135,67 @@ app.get('/health', async (req, res) => {
 Workers do not receive HTTP traffic, but they still need a health endpoint. The simplest approach is to run a minimal HTTP server alongside the worker loop.
 
 ```javascript
-import express from 'express';
-import { createClient } from 'redis';
+import express from 'express'
+import { createClient } from 'redis'
 
-const app = express();
-const redis = createClient({ url: process.env.REDIS_URL });
-await redis.connect();
+const app = express()
+const redis = createClient({ url: process.env.REDIS_URL })
+await redis.connect()
 
-const startTime = Date.now();
-let lastJobAt = null;
-let jobsProcessed = 0;
+const startTime = Date.now()
+let lastJobAt = null
+let jobsProcessed = 0
 
 // Your worker loop sets these as it runs
 export function recordJobProcessed() {
-  lastJobAt = new Date().toISOString();
-  jobsProcessed++;
+  lastJobAt = new Date().toISOString()
+  jobsProcessed++
 }
 
 app.get('/health', async (req, res) => {
-  const checks = {};
-  let healthy = true;
+  const checks = {}
+  let healthy = true
 
   // Check Redis
-  const redisStart = Date.now();
+  const redisStart = Date.now()
   try {
-    await redis.ping();
-    checks.redis = { status: 'healthy', latency_ms: Date.now() - redisStart };
+    await redis.ping()
+    checks.redis = { status: 'healthy', latency_ms: Date.now() - redisStart }
   } catch (err) {
-    checks.redis = { status: 'unhealthy', error: err.message };
-    healthy = false;
+    checks.redis = { status: 'unhealthy', error: err.message }
+    healthy = false
   }
 
   // Check queue depth — flag if backlog is growing
   try {
-    const depth = await redis.lLen(process.env.QUEUE_NAME);
-    const dlqDepth = await redis.lLen(process.env.DLQ_NAME ?? `${process.env.QUEUE_NAME}:dlq`);
+    const depth = await redis.lLen(process.env.QUEUE_NAME)
+    const dlqDepth = await redis.lLen(
+      process.env.DLQ_NAME ?? `${process.env.QUEUE_NAME}:dlq`
+    )
     checks.queue = {
       status: depth < 1000 ? 'healthy' : 'degraded',
       depth,
       dlq_depth: dlqDepth,
-    };
-    if (dlqDepth > 0) checks.queue.status = 'degraded'; // any DLQ entries are worth surfacing
+    }
+    if (dlqDepth > 0) checks.queue.status = 'degraded' // any DLQ entries are worth surfacing
   } catch (err) {
-    checks.queue = { status: 'unhealthy', error: err.message };
-    healthy = false;
+    checks.queue = { status: 'unhealthy', error: err.message }
+    healthy = false
   }
 
   // Check that the worker is actually processing jobs
   const secondsSinceLastJob = lastJobAt
     ? (Date.now() - new Date(lastJobAt).getTime()) / 1000
-    : null;
+    : null
   checks.worker = {
-    status: secondsSinceLastJob === null || secondsSinceLastJob < 60 ? 'healthy' : 'degraded',
+    status:
+      secondsSinceLastJob === null || secondsSinceLastJob < 60
+        ? 'healthy'
+        : 'degraded',
     last_job_at: lastJobAt ?? 'never',
     jobs_processed: jobsProcessed,
     seconds_since_last_job: secondsSinceLastJob,
-  };
+  }
 
   res.status(healthy ? 200 : 503).json({
     status: healthy ? 'healthy' : 'unhealthy',
@@ -198,10 +203,10 @@ app.get('/health', async (req, res) => {
     timestamp: new Date().toISOString(),
     uptime_seconds: Math.floor((Date.now() - startTime) / 1000),
     checks,
-  });
-});
+  })
+})
 
-app.listen(process.env.PORT ?? 8080);
+app.listen(process.env.PORT ?? 8080)
 ```
 
 ---
@@ -377,11 +382,11 @@ services:
       REDIS_URL: redis://redis:6379
       SERVICE_NAME: order-service
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s      # how often to run the check
-      timeout: 5s        # how long to wait for a response
-      retries: 3         # mark unhealthy after this many consecutive failures
-      start_period: 15s  # grace period while the service is starting up
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      interval: 10s # how often to run the check
+      timeout: 5s # how long to wait for a response
+      retries: 3 # mark unhealthy after this many consecutive failures
+      start_period: 15s # grace period while the service is starting up
     depends_on:
       order-db:
         condition: service_healthy
@@ -392,30 +397,30 @@ services:
 ### Adding a healthcheck to PostgreSQL
 
 ```yaml
-  order-db:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: orders
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: secret
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d orders"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+order-db:
+  image: postgres:16
+  environment:
+    POSTGRES_DB: orders
+    POSTGRES_USER: app
+    POSTGRES_PASSWORD: secret
+  healthcheck:
+    test: ['CMD-SHELL', 'pg_isready -U app -d orders']
+    interval: 5s
+    timeout: 5s
+    retries: 5
+    start_period: 10s
 ```
 
 ### Adding a healthcheck to Redis
 
 ```yaml
-  redis:
-    image: redis:7-alpine
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+redis:
+  image: redis:7-alpine
+  healthcheck:
+    test: ['CMD', 'redis-cli', 'ping']
+    interval: 5s
+    timeout: 3s
+    retries: 5
 ```
 
 ### Full example with startup ordering
@@ -427,7 +432,7 @@ services:
   redis:
     image: redis:7-alpine
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 5
@@ -439,7 +444,7 @@ services:
       POSTGRES_USER: app
       POSTGRES_PASSWORD: secret
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d orders"]
+      test: ['CMD-SHELL', 'pg_isready -U app -d orders']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -453,7 +458,7 @@ services:
       REDIS_URL: redis://redis:6379
       SERVICE_NAME: order-service
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -463,7 +468,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    restart: unless-stopped   # restart automatically if the process crashes
+    restart: unless-stopped # restart automatically if the process crashes
 ```
 
 `restart: unless-stopped` means Docker will restart a crashed container automatically. Combined with a health check that can mark a container unhealthy, your system becomes self-healing for common transient failures (a brief network blip, a database restart).
@@ -564,43 +569,52 @@ done
 // Polls all /health endpoints every 5 seconds and prints a colour-coded summary.
 
 const SERVICES = [
-  { name: 'order-service',       url: 'http://order-service:8000/health' },
-  { name: 'restaurant-service',  url: 'http://restaurant-service:8000/health' },
-  { name: 'driver-service',      url: 'http://driver-service:8000/health' },
-  { name: 'dispatch-worker',     url: 'http://dispatch-worker:8000/health' },
-  { name: 'notification-worker', url: 'http://notification-worker:8000/health' },
-];
+  { name: 'order-service', url: 'http://order-service:8000/health' },
+  { name: 'restaurant-service', url: 'http://restaurant-service:8000/health' },
+  { name: 'driver-service', url: 'http://driver-service:8000/health' },
+  { name: 'dispatch-worker', url: 'http://dispatch-worker:8000/health' },
+  {
+    name: 'notification-worker',
+    url: 'http://notification-worker:8000/health',
+  },
+]
 
-const GREEN  = '\x1b[32m';
-const RED    = '\x1b[31m';
-const YELLOW = '\x1b[33m';
-const RESET  = '\x1b[0m';
+const GREEN = '\x1b[32m'
+const RED = '\x1b[31m'
+const YELLOW = '\x1b[33m'
+const RESET = '\x1b[0m'
 
 async function checkAll() {
-  process.stdout.write('\x1Bc'); // clear terminal
-  console.log(`=== System Health ${new Date().toLocaleTimeString()} ===`);
+  process.stdout.write('\x1Bc') // clear terminal
+  console.log(`=== System Health ${new Date().toLocaleTimeString()} ===`)
 
-  await Promise.all(SERVICES.map(async ({ name, url }) => {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
-      const body = await res.json();
-      if (res.status === 200) {
-        console.log(`  ${GREEN}✓${RESET} ${name} (${body.status})`);
-      } else {
-        const failing = Object.entries(body.checks ?? {})
-          .filter(([, v]) => v.status !== 'healthy')
-          .map(([k]) => k)
-          .join(', ');
-        console.log(`  ${RED}✗${RESET} ${name} (unhealthy — failing: ${failing})`);
+  await Promise.all(
+    SERVICES.map(async ({ name, url }) => {
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(3000) })
+        const body = await res.json()
+        if (res.status === 200) {
+          console.log(`  ${GREEN}✓${RESET} ${name} (${body.status})`)
+        } else {
+          const failing = Object.entries(body.checks ?? {})
+            .filter(([, v]) => v.status !== 'healthy')
+            .map(([k]) => k)
+            .join(', ')
+          console.log(
+            `  ${RED}✗${RESET} ${name} (unhealthy — failing: ${failing})`
+          )
+        }
+      } catch (err) {
+        console.log(
+          `  ${YELLOW}?${RESET} ${name} (no response — ${err.message})`
+        )
       }
-    } catch (err) {
-      console.log(`  ${YELLOW}?${RESET} ${name} (no response — ${err.message})`);
-    }
-  }));
+    })
+  )
 }
 
-checkAll();
-setInterval(checkAll, 5000);
+checkAll()
+setInterval(checkAll, 5000)
 ```
 
 ---
@@ -625,11 +639,11 @@ Running `docker compose up --scale order-service=3` produces three entries in `d
 
 ## Common Problems and What They Look Like
 
-| Symptom | Likely cause |
-|---|---|
-| `database: unhealthy, "connection refused"` | Service started before its database was ready. Add `depends_on: condition: service_healthy` and a `healthcheck` to the database container. |
-| `redis: unhealthy, "connection refused"` | Redis container is not running or the `REDIS_URL` environment variable is wrong. Check `docker compose ps` and your env config. |
-| Worker shows `seconds_since_last_job: 180` | Worker is alive but not consuming the queue. Check that the queue name in the worker matches the name the producer is pushing to. |
-| `dlq_depth` keeps growing | Poison pills are arriving faster than expected, or the dead letter logic has a bug that routes valid messages to the DLQ. Inspect the DLQ contents with `redis-cli LRANGE <dlq-name> 0 9`. |
+| Symptom                                             | Likely cause                                                                                                                                                                                            |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `database: unhealthy, "connection refused"`         | Service started before its database was ready. Add `depends_on: condition: service_healthy` and a `healthcheck` to the database container.                                                              |
+| `redis: unhealthy, "connection refused"`            | Redis container is not running or the `REDIS_URL` environment variable is wrong. Check `docker compose ps` and your env config.                                                                         |
+| Worker shows `seconds_since_last_job: 180`          | Worker is alive but not consuming the queue. Check that the queue name in the worker matches the name the producer is pushing to.                                                                       |
+| `dlq_depth` keeps growing                           | Poison pills are arriving faster than expected, or the dead letter logic has a bug that routes valid messages to the DLQ. Inspect the DLQ contents with `redis-cli LRANGE <dlq-name> 0 9`.              |
 | Service flips between `(healthy)` and `(unhealthy)` | Intermittent database connectivity — often caused by the database being under heavy load. Check whether your database container has enough memory and whether connection pool limits are set correctly. |
-| All replicas show `(unhealthy)` simultaneously | Shared dependency is down — Redis or a database. The problem is not the service itself. |
+| All replicas show `(unhealthy)` simultaneously      | Shared dependency is down — Redis or a database. The problem is not the service itself.                                                                                                                 |

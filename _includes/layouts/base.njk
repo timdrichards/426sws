@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ title | default("COMPSCI 426") }}</title>
-  <link rel="stylesheet" href="{{ '/css/style.css' | url('/426sws/') }}">
-</head>
-<body>
-  <header>
-    <nav>
-      <a href="{{ '/' | url('/426sws/') }}" class="site-title">COMPSCI 426</a>
-    </nav>
-  </header>
-  <main>
-    {{ content | safe }}
-  </main>
-  <footer>
-    <p>&copy; 2026 COMPSCI 426</p>
-  </footer>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>{{ course.title }}</title>
+    <link
+      rel="stylesheet"
+      href="{{ '/css/style.css' | url('/426sws/') }}" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a
+          href="{{ '/' | url('/426sws/') }}"
+          class="site-title">
+          {{ course.title }}
+          {% if title %}
+          / {{ title }}
+          {% endif %}
+        </a>
+      </nav>
+    </header>
+    <main>
+      {{ content | safe }}
+    </main>
+    <footer>
+      <p>&copy; 2026 COMPSCI 426</p>
+    </footer>
+  </body>
 </html>

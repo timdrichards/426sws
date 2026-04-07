@@ -1,6 +1,6 @@
 ---
-layout: layouts/base.njk
-title: COMPSCI 426 - Project -- Sprint 01
+layout: layouts/prj.njk
+title: Project → Sprint 01
 ---
 
 # Sprint 1 — Foundation
@@ -13,12 +13,12 @@ Sprint 1 establishes the foundation of your system. By the end of this sprint yo
 
 ## Timeline
 
-| Date | Day | What Happens |
-|------|-----|--------------|
-| **04.07** | Tuesday | **Project Kickoff** — join your team on Canvas, choose a system, fork the starter repo, write your Sprint 1 plan |
-| 04.09 | Thursday | **Sprint 1 Work Session** — in-class work time, instructor and TA check-ins |
-| **04.14** | Tuesday | **Sprint 1 Due before class** — tag `sprint-1`, submit GitHub repo link to Canvas, Sprint 2 kickoff begins |
-| 04.14–04.16 | Tue–Thu | **Sprint 1 Demo Window** — schedule and complete your demo with a TA |
+| Date        | Day      | What Happens                                                                                                     |
+| ----------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
+| **04.07**   | Tuesday  | **Project Kickoff** — join your team on Canvas, choose a system, fork the starter repo, write your Sprint 1 plan |
+| 04.09       | Thursday | **Sprint 1 Work Session** — in-class work time, instructor and TA check-ins                                      |
+| **04.14**   | Tuesday  | **Sprint 1 Due before class** — tag `sprint-1`, submit GitHub repo link to Canvas, Sprint 2 kickoff begins       |
+| 04.14–04.16 | Tue–Thu  | **Sprint 1 Demo Window** — schedule and complete your demo with a TA                                             |
 
 ---
 
@@ -96,6 +96,7 @@ Every service must expose `GET /health`. See [Health Endpoints](../../docs/healt
 ### README
 
 Your `README.md` must include:
+
 - How to start the system (`docker compose up`)
 - The service names and internal ports (for use from Holmes)
 - What endpoints are available, following the format in [Endpoint Descriptions](../../docs/endpoint/)
@@ -114,6 +115,7 @@ Your `README.md` must include:
 Write a k6 test that sends read traffic to your main read endpoint (browsing events, listing restaurants, viewing the video catalog, etc.). This is your baseline — no caching yet, so every request hits the database.
 
 Requirements:
+
 - Ramps up to at least **20 virtual users** over 30 seconds
 - Sustains load for at least **30 seconds**
 - Reports **p50, p95, p99** response times and **requests per second**
@@ -154,13 +156,13 @@ Code pushed after the tag does not count for this sprint.
 
 Sprint 1 is worth **10% of the team project grade**. The following rubric is used at the demo.
 
-| Area | Points | Criteria |
-|------|--------|----------|
-| **Services run** | 25 | `docker compose up` starts all core services. `docker compose ps` shows every service as `(healthy)`. No services crash or restart in a loop. |
-| **Health endpoints** | 20 | `GET /health` on each service returns HTTP 200 with a JSON body showing `database` and `redis` checks. Returns HTTP 503 when a dependency is down. Healthcheck directives are present in `compose.yml`. |
-| **Synchronous call** | 20 | At least one service-to-service synchronous HTTP call works end-to-end and can be demonstrated live. |
-| **k6 baseline** | 20 | `k6/sprint-1.js` runs without errors. Sprint report includes p50, p95, p99, and RPS. Results are explained, not just pasted. |
-| **README and report** | 15 | README is accurate and complete. `SPRINT-1.md` includes what each person did with specific file/directory ownership claims and is backed by commit history. Sprint plan was committed before leaving class on 04.07. |
+| Area                  | Points | Criteria                                                                                                                                                                                                             |
+| --------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Services run**      | 25     | `docker compose up` starts all core services. `docker compose ps` shows every service as `(healthy)`. No services crash or restart in a loop.                                                                        |
+| **Health endpoints**  | 20     | `GET /health` on each service returns HTTP 200 with a JSON body showing `database` and `redis` checks. Returns HTTP 503 when a dependency is down. Healthcheck directives are present in `compose.yml`.              |
+| **Synchronous call**  | 20     | At least one service-to-service synchronous HTTP call works end-to-end and can be demonstrated live.                                                                                                                 |
+| **k6 baseline**       | 20     | `k6/sprint-1.js` runs without errors. Sprint report includes p50, p95, p99, and RPS. Results are explained, not just pasted.                                                                                         |
+| **README and report** | 15     | README is accurate and complete. `SPRINT-1.md` includes what each person did with specific file/directory ownership claims and is backed by commit history. Sprint plan was committed before leaving class on 04.07. |
 
 **Total: 100 points**
 
@@ -190,20 +192,25 @@ docker compose up --build
 Then verify each deliverable:
 
 **Services run (25 pts)**
+
 ```bash
 docker compose ps
 ```
+
 Every core service should show `(healthy)`. If any service shows `(unhealthy)` or is restarting, deduct points proportionally. Note which services are healthy and which are not.
 
 **Health endpoints (20 pts)**
 
 From Holmes:
+
 ```bash
 docker compose exec holmes bash
 # Then for each service:
 curl http://<service-name>:<port>/health | jq .
 ```
+
 Check that:
+
 - HTTP status is 200
 - Response body contains a `checks` object with `database` and `redis` keys
 - Each check shows `"status": "healthy"` with latency or an error message
@@ -216,15 +223,19 @@ Ask the team to demonstrate the synchronous call from Holmes. The call should su
 **k6 baseline (20 pts)**
 
 From Holmes:
+
 ```bash
 k6 run /workspace/k6/sprint-1.js
 ```
+
 Or as documented in the team's README. Verify:
+
 - Test runs without errors
 - Output includes p50, p95, p99, and RPS
 - Sprint report includes these numbers with a brief explanation
 
 **README and report (15 pts)**
+
 - `README.md` accurately documents how to start the system and what endpoints exist
 - `sprint-reports/SPRINT-1.md` lists what each person owned and what they built
 - Verify ownership claims against commit history: `git log --author="Name" --oneline sprint-1`

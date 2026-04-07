@@ -1,5 +1,5 @@
 ---
-title: COMPSCI 426 - Project -- Endpoint Descriptions
+title: Project → Endpoint Descriptions
 navTitle: Endpoints
 navOrder: 7
 ---

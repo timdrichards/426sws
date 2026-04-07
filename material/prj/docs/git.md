@@ -1,5 +1,5 @@
 ---
-title: COMPSCI 426 - Project -- Git Workflow
+title: Project → Git Workflow
 navTitle: Git Workflow
 navOrder: 5
 ---
