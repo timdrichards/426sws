@@ -27,7 +27,7 @@ The team member who forked the repo must add every other team member as a collab
 
 ### Step 3: Clone, Create `dev`, and Verify
 
-Every team member clones the fork. Then create the `dev` branch if it does not already exist:
+Every team member clones the fork. Then one team member creates the `dev` branch if it does not already exist:
 
 ```bash
 git clone https://github.com/<your-team>/<your-fork>.git
@@ -38,6 +38,27 @@ docker compose up --build
 ```
 
 Verify that `docker compose up --build` starts Holmes without errors before writing any service code. You should see the `holmes` container start and stay running.
+
+#### Upstream Updates
+
+On occassion, the course staff may push updates to the starter repo with bug fixes, improvements, or new documentation. If this happens, one team member can pull those changes into your fork with:
+
+```bash
+git remote add upstream https://github.com/<your-team>/<your-fork>.git
+git fetch upstream
+git checkout dev
+git merge upstream/main
+git push origin dev
+```
+
+Everyone else on the team should then pull those changes into their local `dev` branch with:
+
+```bash
+git checkout dev
+git pull origin dev
+```
+
+You can also do this through the GitHub web interface by having one team member click the "Fetch upstream" button on your fork's main page. After you do this, make sure to merge the changes into your `dev` branch which you can also do through the GitHub web interface by creating a pull request from `main` to `dev`. Once you do that, you can merge the pull request and then pull the changes to your local `dev` branch using `git pull origin dev`.
 
 ### Step 4: Fill In the Sprint 1 Plan and README
 
