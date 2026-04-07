@@ -322,6 +322,34 @@ At the end of each sprint (before class on the Tuesday deadline), the team merge
 - Have at least one team member review and approve
 - Merge the PR, then immediately tag `main` — see Section 7
 
+### 6.3 Deleting a Task Branch After Merging
+
+Once your Pull Request is merged into `dev`, delete the task branch. Keeping stale branches around clutters the repository and makes it harder for teammates to see what work is still in progress.
+
+**Delete the remote branch** (do this first — GitHub also offers a "Delete branch" button on the merged PR page):
+
+```bash
+git push origin --delete task/order-service-post-route
+```
+
+**Delete the local branch** (switch off it first if it is your current branch):
+
+```bash
+git checkout dev
+git pull origin dev
+git branch -d task/order-service-post-route
+```
+
+The `-d` flag (lowercase) is safe: it refuses to delete a branch that has not been fully merged. If Git warns you that the branch is unmerged but you are certain it was merged via a squash or rebase PR, use `-D` (uppercase) to force the deletion.
+
+**Verify the branch is gone:**
+
+```bash
+git branch -a
+```
+
+The deleted branch should no longer appear under `remotes/origin/`. If it still shows after deleting the remote, run `git fetch --prune` to sync your local list of remote branches.
+
 ---
 
 ## 7. Sprint Tags
