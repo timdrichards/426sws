@@ -36,9 +36,9 @@ Rebuild and deploy. The root URL now serves the summer page. All prior semester 
 
 ### Adding a New Semester
 
-1. Create the content partial at `_includes/semester-content/<term>-<year>.njk`. Write the page content in HTML/Nunjucks — no frontmatter. Use the `url` filter for all internal links so they resolve correctly from any page:
-   ```njk
-   <a href="{{ '/material/lec/01/' | url }}">Lecture 1</a>
+1. Create the content file at `semesters/_<term>-<year>.md`. Write in standard Markdown — no frontmatter. The `url` filter is available for internal links (Nunjucks is processed before Markdown):
+   ```markdown
+   [Lecture 1]({{ '/material/lec/01/' | url }})
    ```
 
 2. Create the semester page at `semesters/<term>-<year>.njk`:
@@ -48,7 +48,7 @@ Rebuild and deploy. The root URL now serves the summer page. All prior semester 
    title: Fall 2026
    permalink: /fall-2026/
    ---
-   {% include "semester-content/fall-2026.njk" %}
+   {% renderFile "semesters/_fall-2026.md" %}
    ```
 
 3. Share the permanent URL (`/426sws/fall-2026/`) with students as needed.
@@ -73,8 +73,11 @@ npm run build   # production build to _site/
 _data/                  global data files (course metadata, active semester)
 _includes/
   layouts/              base Nunjucks layouts
-  semester-content/     per-semester page content partials
-semesters/              semester wrapper pages (one permanent URL each)
+semesters/
+  _spring-2026.md       spring content (underscore prefix = not output as a page)
+  _summer-2026.md       summer content
+  spring-2026.njk  →   /spring-2026/  permanent URL
+  summer-2026.njk  →   /summer-2026/  permanent URL
 material/
   lec/                  lecture materials
   prj/                  project documentation and sprint pages

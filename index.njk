@@ -3,4 +3,4 @@ layout: layouts/base.njk
 permalink: /
 ---
 
-{% include "semester-content/" + course.activeSemester + ".njk" %}
+{% renderFile "semesters/_" + course.activeSemester + ".md" %}

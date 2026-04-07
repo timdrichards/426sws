@@ -1,8 +1,10 @@
 import fg from 'fast-glob'
 import pluginSyntaxHighlight from '@11ty/eleventy-plugin-syntaxhighlight'
+import { EleventyRenderPlugin } from '@11ty/eleventy'
 
 export default function (eleventyConfig) {
   eleventyConfig.addPlugin(pluginSyntaxHighlight)
+  eleventyConfig.addPlugin(EleventyRenderPlugin)
 
   eleventyConfig.addCollection('prjPages', function (collectionApi) {
     return collectionApi
