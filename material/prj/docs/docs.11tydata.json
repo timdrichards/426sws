@@ -1,0 +1,4 @@
+{
+  "layout": "layouts/prj.njk",
+  "tags": ["prj"]
+}

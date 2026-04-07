@@ -1,6 +1,7 @@
 ---
-layout: layouts/base.njk
 title: COMPSCI 426 - Project Systems
+navTitle: Systems
+navOrder: 3
 ---
 
 # Project Systems

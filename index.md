@@ -24,14 +24,16 @@ scalability in software design in the context of web application architecture.
 This course counts as an Elective for the CS and INFORM Majors. Prerequisite:
 COMPSCI 320 or COMPSCI 326 with a grade of C or better. 3 credits.
 
-### Lectures
+### Phase 1 - Lectures
 
 - [13 Gateways, Load Balancers, & Observability](material/lec/13)
 - [14 Load Testing That Actually Tests](material/lec/14)
 
-### Project
+### Phase 2 - Project
 
-- 04.07.2024: 01 Project Overview
+Please read the [Project Overview](material/prj/docs/) for details on the team project, including the schedule, deliverables, grading, and documentation.
+
+- [15 04.07.2024 Project Overview](material/prj/sprints/sprint-01)
 - 04.09.2024: 02 Project
 - 04.14.2024: 03 Project
 - 04.16.2024: 04 Project

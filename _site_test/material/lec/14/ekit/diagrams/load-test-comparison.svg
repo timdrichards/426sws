@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" font-family="system-ui, sans-serif" font-size="13">
+
+  <!-- Title -->
+  <text x="380" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a1a">Why the Old Load Test Did Not Stress the Server</text>
+
+  <!-- LEFT: Old test -->
+  <text x="190" y="62" text-anchor="middle" font-size="14" font-weight="bold" fill="#ea4335">Last Class: Client-Throttled</text>
+  <text x="190" y="80" text-anchor="middle" font-size="11" fill="#888">20 VUs, sleep(1) between requests</text>
+
+  <!-- Timeline header -->
+  <text x="30" y="110" font-size="11" fill="#555" font-weight="bold">VU 1</text>
+  <text x="30" y="145" font-size="11" fill="#555" font-weight="bold">VU 2</text>
+  <text x="30" y="180" font-size="11" fill="#555" font-weight="bold">VU 3</text>
+
+  <!-- VU 1 timeline -->
+  <rect x="75" y="97" width="40" height="18" rx="3" fill="#4285f4"/>
+  <rect x="115" y="97" width="200" height="18" rx="3" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+  <rect x="315" y="97" width="40" height="18" rx="3" fill="#4285f4"/>
+  <text x="95" y="110" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="215" y="110" text-anchor="middle" font-size="9" fill="#999">sleep(1)</text>
+  <text x="335" y="110" text-anchor="middle" font-size="9" fill="white">req</text>
+
+  <!-- VU 2 timeline -->
+  <rect x="75" y="132" width="40" height="18" rx="3" fill="#4285f4"/>
+  <rect x="115" y="132" width="200" height="18" rx="3" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+  <rect x="315" y="132" width="40" height="18" rx="3" fill="#4285f4"/>
+  <text x="95" y="145" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="215" y="145" text-anchor="middle" font-size="9" fill="#999">sleep(1)</text>
+  <text x="335" y="145" text-anchor="middle" font-size="9" fill="white">req</text>
+
+  <!-- VU 3 timeline -->
+  <rect x="75" y="167" width="40" height="18" rx="3" fill="#4285f4"/>
+  <rect x="115" y="167" width="200" height="18" rx="3" fill="#f0f0f0" stroke="#ddd" stroke-width="1"/>
+  <rect x="315" y="167" width="40" height="18" rx="3" fill="#4285f4"/>
+  <text x="95" y="180" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="215" y="180" text-anchor="middle" font-size="9" fill="#999">sleep(1)</text>
+  <text x="335" y="180" text-anchor="middle" font-size="9" fill="white">req</text>
+
+  <!-- Server utilization bar (old) -->
+  <text x="30" y="218" font-size="11" fill="#555" font-weight="bold">Server</text>
+  <rect x="75" y="205" width="300" height="20" rx="3" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1"/>
+  <rect x="75" y="205" width="24" height="20" rx="3" fill="#34a853"/>
+  <text x="225" y="219" text-anchor="middle" font-size="10" fill="#555">~16 req/s -- barely used</text>
+
+  <!-- Divider -->
+  <line x1="380" y1="55" x2="380" y2="400" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- RIGHT: New test -->
+  <text x="570" y="62" text-anchor="middle" font-size="14" font-weight="bold" fill="#34a853">Today: Server-Saturated</text>
+  <text x="570" y="80" text-anchor="middle" font-size="11" fill="#888">100 VUs, no sleep between requests</text>
+
+  <!-- Timeline header -->
+  <text x="410" y="110" font-size="11" fill="#555" font-weight="bold">VU 1</text>
+  <text x="410" y="145" font-size="11" fill="#555" font-weight="bold">VU 2</text>
+  <text x="410" y="180" font-size="11" fill="#555" font-weight="bold">VU 3</text>
+
+  <!-- VU 1 timeline (back to back) -->
+  <rect x="455" y="97" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="507" y="97" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="559" y="97" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="611" y="97" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="663" y="97" width="48" height="18" rx="3" fill="#4285f4"/>
+  <text x="479" y="110" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="531" y="110" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="583" y="110" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="635" y="110" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="687" y="110" text-anchor="middle" font-size="9" fill="white">req</text>
+
+  <!-- VU 2 timeline -->
+  <rect x="455" y="132" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="507" y="132" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="559" y="132" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="611" y="132" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="663" y="132" width="48" height="18" rx="3" fill="#4285f4"/>
+  <text x="479" y="145" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="531" y="145" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="583" y="145" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="635" y="145" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="687" y="145" text-anchor="middle" font-size="9" fill="white">req</text>
+
+  <!-- VU 3 timeline -->
+  <rect x="455" y="167" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="507" y="167" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="559" y="167" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="611" y="167" width="48" height="18" rx="3" fill="#4285f4"/>
+  <rect x="663" y="167" width="48" height="18" rx="3" fill="#4285f4"/>
+  <text x="479" y="180" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="531" y="180" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="583" y="180" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="635" y="180" text-anchor="middle" font-size="9" fill="white">req</text>
+  <text x="687" y="180" text-anchor="middle" font-size="9" fill="white">req</text>
+
+  <!-- Server utilization bar (new) -->
+  <text x="410" y="218" font-size="11" fill="#555" font-weight="bold">Server</text>
+  <rect x="455" y="205" width="260" height="20" rx="3" fill="#ea4335"/>
+  <text x="585" y="219" text-anchor="middle" font-size="10" fill="white">100% saturated -- ~2 req/s max</text>
+
+  <!-- Bottom: key insight -->
+  <rect x="40" y="260" width="680" height="130" rx="8" fill="#fff8e1" stroke="#ffc107" stroke-width="1.5"/>
+  <text x="380" y="290" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a1a1a">Key Insight</text>
+  <text x="380" y="315" text-anchor="middle" font-size="12" fill="#555">On the left, VUs spend 83% of their time sleeping. The server is idle most of the time.</text>
+  <text x="380" y="335" text-anchor="middle" font-size="12" fill="#555">Adding replicas to an idle server changes nothing measurable.</text>
+  <text x="380" y="360" text-anchor="middle" font-size="12" fill="#555">On the right, VUs send requests back-to-back. The server is the bottleneck.</text>
+  <text x="380" y="380" text-anchor="middle" font-size="12" fill="#555">Now adding replicas behind a load balancer produces a visible improvement.</text>
+</svg>
