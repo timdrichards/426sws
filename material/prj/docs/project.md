@@ -8,7 +8,7 @@ navOrder: 2
 
 ## Overview
 
-Over the final five weeks of the semester, you will work in a team of 3–6 people to design and build a scalable web system using Docker Compose. Your team will choose one of the five systems described in the systems document. Each system involves multiple services, databases, caches, queues, and workers that communicate with each other — just like the systems we have studied all semester.
+Over the final five weeks of the semester, you will work in a team of 6–8 people to design and build a scalable web system using Docker Compose. Your team will choose one of the five systems described in the systems document. Each system involves multiple services, databases, caches, queues, and workers that communicate with each other — just like the systems we have studied all semester.
 
 The project is organized into **four one-week sprints**. Each sprint has a clear set of deliverables. You will submit working code at the end of every sprint, prove your system's behavior under load with k6 tests, and demo to a TA between sprint classes.
 
@@ -56,7 +56,7 @@ Demos do **not** happen during class. Instead, your team must **schedule a demo 
 1. **Before the demo**, make sure your sprint tag is pushed to your repository. The TA will verify that the tag exists on the main branch.
 2. **At the demo**, the TA will clone your repository fresh, check out the tag, and run `docker compose up`. Your team walks the TA through the sprint deliverables from that clean checkout. This is not optional — you cannot demo from a local development environment with uncommitted changes.
 3. **Every team member** should be present and able to explain any part of the system. If someone cannot attend, let the TA know in advance.
-4. **Demos are 10–15 minutes.** Walk through what you built, show it working, run your k6 tests, and answer the TA's questions.
+4. **Demos are 15–20 minutes.** Walk through what you built, show it working, run your k6 tests, and answer the TA's questions.
 
 ### Tagging Your Submissions
 
@@ -138,18 +138,10 @@ Save these as `k6/sprint-2-cache.js` and `k6/sprint-2-async.js`.
 Every team must deliver:
 
 - **Poison pill handling** on at least one queue: when a worker encounters a message it cannot process (malformed data, references to something that does not exist), it moves the message to a dead letter queue instead of retrying forever or crashing
-- All remaining workers and services from your chosen scope are implemented
+- All remaining workers and services from your chosen system are implemented
 - The system handles basic failure scenarios gracefully (a failed payment does not leave a dangling reservation, a deleted document does not cause the export worker to crash in a loop)
 - After poison pills are injected, the affected worker's `/health` endpoint must show a non-zero `dlq_depth` while the worker's own status remains `healthy` — proving the worker is still running and processing good messages
-
-Teams of 4+ must also deliver:
-
-- A second async worker pipeline
-
-Teams of 5–6 must also deliver:
-
-- All worker pipelines described in your chosen system
-- Dead letter queue handling on all queues
+- **Dead letter queue handling on all queues** — every worker pipeline must handle poison pills and route them to a dead letter queue
 
 #### Sprint 3 — k6 Load Test
 
@@ -177,18 +169,9 @@ Save this as `k6/sprint-3-poison.js`.
   ```
 - The load balancer (Caddy recommended) must distribute traffic across the replicas. You should be able to see in the logs that different replicas are handling different requests.
 - `docker compose ps` must show every replica as `(healthy)`. If a replica is not passing its health check it is not considered running for grading purposes.
-- The system must be **fully complete** for your team size. All services, workers, and pipelines required for your team size must be working.
-
-Teams of 4+ must also deliver:
-
-- Replication of at least **two** services
-- All worker pipelines required for their team size
-
-Teams of 5–6 must also deliver:
-
-- Replication across **three or more** services
-- All worker pipelines described in your chosen system
-- Dead letter queue handling on all queues
+- The system must be **fully complete**. All services, workers, and pipelines described in your chosen system must be working.
+- **Replication across three or more services** using `docker compose up --scale`
+- **Dead letter queue handling on all queues** — every worker pipeline must handle poison pills
 
 #### Sprint 4 — k6 Load Tests
 
@@ -282,7 +265,7 @@ What must be true for this sprint to be considered complete?
 
 #### Sprint Plan Example
 
-The following is an example for a 3-person team building System 1 (Event Ticketing Platform) during Sprint 1.
+The following is an example for a 6-person team building System 1 (Event Ticketing Platform) during Sprint 1.
 
 ```markdown
 # Sprint 1 Plan — Team Nucleus
@@ -291,7 +274,7 @@ The following is an example for a 3-person team building System 1 (Event Ticketi
 
 ## Sprint Goal
 
-Get all three core services running in Docker Compose, connected to their databases, and
+Get all core services running in Docker Compose, connected to their databases, and
 talking to each other via at least one synchronous HTTP call. Establish a k6 baseline.
 
 ## Ownership
@@ -300,18 +283,23 @@ talking to each other via at least one synchronous HTTP call. Establish a k6 bas
 | ----------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Alice       | `event-catalog-service/`                                   | GET /events and GET /events/:id endpoints, events DB schema and migrations, Redis cache for event detail lookups                                                  |
 | Bob         | `ticket-purchase-service/`                                 | POST /purchases endpoint with idempotency key check, purchase DB schema, synchronous HTTP call to Payment Service                                                 |
-| Carol       | `payment-service/`, `docker-compose.yml`, `k6/sprint-1.js` | Simulated payment endpoint returning success/failure, Docker Compose wiring for all three services and their databases, baseline k6 load test against GET /events |
+| Carol       | `payment-service/`, `docker-compose.yml`, `k6/sprint-1.js` | Simulated payment endpoint returning success/failure, Docker Compose wiring for all services and their databases, baseline k6 load test against GET /events |
+| David       | `notification-service/`                                    | Redis pub/sub listener for confirmed purchases, simulated email log output, GET /health endpoint with queue depth reporting                                        |
+| Eve         | `waitlist-worker/`                                         | Redis queue consumer for waitlist entries, seat promotion logic, dead letter queue for malformed entries, GET /health with dlq_depth                               |
+| Frank       | `analytics-worker/`, `refund-service/`                     | Analytics event consumer with idempotent upserts, refund request endpoint with synchronous call to Payment Service, refund DB schema                              |
 
 ## Service Interfaces
 
 - Alice will have `GET /events/:id` returning a JSON event object by Wednesday evening
-  so Bob can complete the Payment Service call in ticket-purchase-service.
-- Carol will have the Docker Compose network up by Tuesday night so Alice and Bob can
-  test database connectivity early.
+  so Bob can complete the synchronous call in ticket-purchase-service.
+- Carol will have the Docker Compose network up by Tuesday night so all services can
+  test database and Redis connectivity early.
+- Bob will publish to the purchase confirmation pub/sub channel by Thursday so David
+  can wire up the Notification Service listener.
 
 ## Definition of Done
 
-- `docker compose up` starts all three services and their databases without errors
+- `docker compose up` starts all services and their databases without errors
 - `curl localhost/events` returns a list of events from the database
 - `curl localhost/purchases` with a valid body calls the Payment Service and returns a result
 - Redis container is running and event-catalog-service connects to it on startup
@@ -386,7 +374,7 @@ changed and why.]
 
 #### Sprint Report Example
 
-The following is an example for the same 3-person team (System 1, Sprint 1) after completing the sprint.
+The following is an example for the same 6-person team (System 1, Sprint 1) after completing the sprint.
 
 ```markdown
 # Sprint 1 Report — Team Nucleus
@@ -399,16 +387,19 @@ Get all three core services running in Docker Compose, connected to their databa
 and talking to each other via at least one synchronous HTTP call. Establish a k6 baseline.
 
 Alice owned event-catalog-service, Bob owned ticket-purchase-service, Carol owned
-payment-service and the Docker Compose configuration.
+payment-service and the Docker Compose configuration, David owned notification-service,
+Eve owned waitlist-worker, and Frank owned analytics-worker and refund-service.
 
 ## What We Actually Delivered
 
-All three services start cleanly from `docker compose up`. The Event Catalog Service
+All core services start cleanly from `docker compose up`. The Event Catalog Service
 exposes GET /events and GET /events/:id and reads from its Postgres database. The
 Ticket Purchase Service accepts POST /purchases and calls the Payment Service
 synchronously over HTTP. The Payment Service returns a simulated success or failure.
 Redis is running and event-catalog-service connects to it on startup, though caching
-is not yet wired up (planned for Sprint 2). The k6 baseline test runs successfully.
+is not yet wired up (planned for Sprint 2). The Notification Service listener is
+scaffolded but not yet publishing — that integration is planned for Sprint 2.
+The k6 baseline test runs successfully.
 
 ## What Each Person Did
 
@@ -423,8 +414,24 @@ Payment Service using axios.
 
 **Carol** — owns `payment-service/`, `docker-compose.yml`, `k6/sprint-1.js`
 Built the simulated payment endpoint (returns success 90% of the time, failure 10%),
-wired up Docker Compose for all three services with Postgres instances and a shared
-Redis container, and wrote the Sprint 1 k6 baseline test.
+wired up Docker Compose for all services with Postgres instances and a shared Redis
+container, and wrote the Sprint 1 k6 baseline test.
+
+**David** — owns `notification-service/`
+Scaffolded the Notification Service with a Redis pub/sub subscriber stub and a GET
+/health endpoint. The subscriber is connected to Redis but the purchase confirmation
+channel integration with ticket-purchase-service is deferred to Sprint 2.
+
+**Eve** — owns `waitlist-worker/`
+Implemented the Redis queue consumer loop, the dead letter queue for malformed entries,
+and the GET /health endpoint reporting queue depth and dlq_depth. Seat promotion logic
+is stubbed and will be completed in Sprint 2 once the purchase event schema is finalized.
+
+**Frank** — owns `analytics-worker/`, `refund-service/`
+Built the analytics worker consumer with idempotent upserts keyed on event ID, and
+scaffolded the refund-service with POST /refunds and a Postgres schema for refund
+records. The synchronous call to Payment Service for charge reversal is deferred to
+Sprint 2.
 
 ## k6 Results and Analysis
 
@@ -546,21 +553,15 @@ Your team receives a shared grade based on the quality and completeness of your 
 | --------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Sprint 1 Delivery** | 10%    | Core services run in Docker Compose. Synchronous call works. Baseline k6 test runs and results are included in the report.                                                                                                                                                                           |
 | **Sprint 2 Delivery** | 15%    | Async pipeline works end-to-end. Caching is implemented and k6 shows measurable improvement over Sprint 1 baseline. At least one idempotent write path. Burst test shows correct async behavior.                                                                                                     |
-| **Sprint 3 Delivery** | 15%    | Poison pill handling works and k6 proves it under mixed traffic. All workers and services for your team size are implemented. Failure scenarios are handled gracefully.                                                                                                                              |
-| **Sprint 4 Delivery** | 20%    | Replication works via `--scale`. k6 shows measurable scaling improvement. System survives replica failure under load. System is fully complete for your team size.                                                                                                                                   |
+| **Sprint 3 Delivery** | 15%    | Poison pill handling works and k6 proves it under mixed traffic. All workers and services are implemented. Dead letter queue handling is in place on all queues. Failure scenarios are handled gracefully.                                                                                           |
+| **Sprint 4 Delivery** | 20%    | Replication works via `--scale` across three or more services. k6 shows measurable scaling improvement. System survives replica failure under load. System is fully complete.                                                                                                                        |
 | **Final Demo**        | 10%    | System starts cleanly from the `sprint-4` tag with replicas. Team can walk through the key flows. Replica failure shown live. Questions are answered clearly.                                                                                                                                        |
 | **k6 Test Quality**   | 15%    | Tests are meaningful (not trivial). Results are clearly presented in sprint reports with analysis. Before-and-after comparisons show real insight into system behavior. The progression from Sprint 1 baseline through caching, async, poison pills, and scaling tells a coherent performance story. |
 | **Code Quality**      | 15%    | Code is readable and organized. Each service is in its own directory. Docker Compose file is clean. README is accurate and helpful.                                                                                                                                                                  |
 
 Each sprint is graded on what was delivered, not what was promised. A working subset is better than a broken whole.
 
-**Scaling expectations by team size:**
-
-- **3-person teams** are graded on core services, one worker pipeline, poison pill handling on one queue, and replication of at least one service via `--scale`.
-- **4-person teams** are graded on all core services, two worker pipelines, poison pill handling, and replication of at least two services via `--scale`.
-- **5–6-person teams** are graded on the full system as described in the Project Systems document, all k6 tests, replication of three or more services via `--scale`, and dead letter queue handling on all queues.
-
-We will not compare 3-person teams against 6-person teams. Your grade is based on whether you delivered what is expected for your team size.
+All teams (6–8 members) are graded on the full system as described in the Project Systems document: all core services, all worker pipelines, poison pill and dead letter queue handling on all queues, and replication of three or more services via `--scale`.
 
 ### Individual Grade (25% of project grade)
 
@@ -597,7 +598,7 @@ This is not about perfection — it is about care. A repository that is easy to 
 
 Teams are formed on **04.07** during the Project Kickoff class. Here are the rules:
 
-- Teams must have **3 to 6 members**
+- Teams must have **6 to 8 members**
 - You may form your own team or ask to be placed on one
 - Each team picks one of the five systems from the Project Systems document
 - Once formed, teams are final. Plan carefully.
