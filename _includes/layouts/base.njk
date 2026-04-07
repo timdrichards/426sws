@@ -18,10 +18,15 @@
           href="{{ '/' | url('/426sws/') }}"
           class="site-title">
           {{ course.title }}
-          {% if title %}
-          / {{ title }}
-          {% endif %}
         </a>
+        {% if semester %}
+          /
+          <a
+            href="{{ page.url | url('/426sws/') }}"
+            class="site-title">
+            {{ semester }}
+          </a>
+        {% endif %}
       </nav>
     </header>
     <main>
