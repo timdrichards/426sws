@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Sky circle background -->
+  <circle cx="32" cy="32" r="32" fill="#1a3a6e"/>
+
+  <!-- Sky gradient overlay -->
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#3b7dd8"/>
+      <stop offset="100%" stop-color="#1a3a6e"/>
+    </radialGradient>
+    <clipPath id="circle-clip">
+      <circle cx="32" cy="32" r="32"/>
+    </clipPath>
+  </defs>
+
+  <circle cx="32" cy="32" r="32" fill="url(#sky)"/>
+
+  <!-- Snow cap on far mountain -->
+  <polygon points="32,10 24,30 40,30" fill="#e8f0fb" clip-path="url(#circle-clip)"/>
+
+  <!-- Far mountain (lighter, behind) -->
+  <polygon points="32,14 18,40 46,40" fill="#2d5fa8" clip-path="url(#circle-clip)"/>
+
+  <!-- Snow cap on left mountain -->
+  <polygon points="16,22 11,33 21,33" fill="#e8f0fb" clip-path="url(#circle-clip)"/>
+
+  <!-- Left foreground mountain -->
+  <polygon points="16,26 2,52 30,52" fill="#1a4a8a" clip-path="url(#circle-clip)"/>
+
+  <!-- Snow cap on right mountain -->
+  <polygon points="50,24 45,35 55,35" fill="#e8f0fb" clip-path="url(#circle-clip)"/>
+
+  <!-- Right foreground mountain -->
+  <polygon points="50,28 36,52 64,52" fill="#1a4a8a" clip-path="url(#circle-clip)"/>
+
+  <!-- Ground / valley -->
+  <rect x="0" y="50" width="64" height="14" fill="#0f2a54" clip-path="url(#circle-clip)"/>
+
+  <!-- Subtle moon/star dot -->
+  <circle cx="50" cy="16" r="2.5" fill="#e8f0fb" opacity="0.8" clip-path="url(#circle-clip)"/>
+</svg>
