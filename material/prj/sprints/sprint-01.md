@@ -34,7 +34,7 @@ If you do not have a team yet, let the instructor know now.
 
 ### 2. Choose a System
 
-As a team, pick one of the five systems from the [Project Systems](../../docs/systems/) page. No two teams in the same section may choose the same system — first come, first served. Tell the instructor your choice before moving on.
+As a team, pick one of the five systems from the [Project Systems](../../docs/systems/) page. Each system has a different domain and set of core services, but the same technical requirements. Pick the one that sounds most interesting to your team. You will be building the same core architecture and features regardless of which system you choose, so there are no technical advantages or disadvantages to any choice.
 
 ### 3. Fork the Starter Repository
 

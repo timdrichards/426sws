@@ -600,7 +600,6 @@ Teams are formed on **04.07** during the Project Kickoff class. Here are the rul
 - Teams must have **3 to 6 members**
 - You may form your own team or ask to be placed on one
 - Each team picks one of the five systems from the Project Systems document
-- No two teams in the same section may pick the same system (first come, first served)
 - Once formed, teams are final. Plan carefully.
 
 If you cannot attend the kickoff class, let the instructor know in advance so we can place you on a team.
