@@ -1,27 +1,42 @@
 ---
 layout: layouts/base.njk
-title: Summer 2026
-permalink: /summer-2026/
+title: 'COMPSCI 426 - {{ semesterName }}'
+permalink: '/{{ semester }}/'
 ---
 
 # COMPSCI 426 Scalable Web Systems
 
-## Summer 2026
+## {{ semesterName }}
 
-The summer version of COMPSCI 426 will cover the same material as the regular semester version, but with a different schedule. The lectures will be condensed into the first four weeks of the semester, and the project will be completed in the remaining two weeks. The project will be individual rather than team-based as in the regular semester. The course will still be worth 3 credits and will still count as an elective for CS and INFO majors. If you have any questions about the course, please contact the instructor directly.
+The web has become a large and complex area for application development. Access
+to an abundance of open source languages, libraries, and frameworks has led to
+the quick and easy construction of a variety of applications with several moving
+parts working in coordination to present to the user the illusion of a single
+program. In reality, web applications are extremely difficult to get right. They
+involve a large collection of coordinated services, multiple databases,
+complicated user interfaces, security and performance issues, and ever changing
+3rd party services, spread across physical and virtual machines. These
+complications are further stressed by the large number of concurrent users that
+access these applications every second. This course will investigate several
+well known web-based applications and the technology and software architecture
+used to scale these applications. We will also study a specific topic related to
+scalability in software design in the context of web application architecture.
+This course counts as an Elective for the CS and INFORM Majors. Prerequisite:
+COMPSCI 320 or COMPSCI 326 with a grade of C or better. 3 credits.
 
-Additional information such as the syllabus and schedule will be posted on the course website as we get closer to the start of the semester. Please check back regularly for updates.
+- [Syllabus]({{ semester + '/syllabus/' | url }})
+- [Schedule]({{ semester + '/schedule/' | url }})
 
 ### Course at a Glance
 
 - **Credits:** 3
-- **Format:** Asynchronous presentation of material
+- **Format:** In-person presentation of material + team project
 - **Prerequisite:** COMPSCI 320 or COMPSCI 326 with a grade of C or better
 - **Counts as:** Elective for CS and INFO Majors
 
 ### What You Will Learn
 
-The first part of the course covers the building blocks of scalable systems through presentations and hands-on exercises:
+The first part of the course covers the building blocks of scalable systems through lectures and hands-on exercises:
 
 - API gateways, load balancers, and reverse proxies
 - Caching layers and cache invalidation strategies
@@ -33,8 +48,10 @@ The first part of the course covers the building blocks of scalable systems thro
 
 ### The Project
 
-The second half of the course is a four-sprint project. You will design and build a realistic distributed system using Docker Compose — choosing from five different problem domains. You will prove your system works under load with k6 tests and demo your work to the course staff asynchronously.
+The second half of the course is a four-sprint project. You will design and build a realistic distributed system using Docker Compose — choosing from five different problem domains. You will prove your system works under load with k6 tests and demo your work to the course staff.
 
 ### Registration
 
-Please visit the [University+ Summer 2026 Classes](https://www.umass.edu/universityplus/classes/explore/summer-2026) for more information on how to register for the course. If you have questions about the course material, contact the instructor directly: Tim Richards ([richards@cs.umass.edu](mailto:richards@cs.umass.edu)).
+Please visit the [University+ Session](https://www.umass.edu/universityplus/classes/explore/summer-2026) to register for the course. If you have questions about the course material, contact the instructor directly: Tim Richards ([richards@cs.umass.edu](mailto:richards@cs.umass.edu)).
+
+**Note:** Do not contact the instructor regarding registration questions. Please contact the UMass Registrar's Office for any questions about registration, course add/drop, or waitlists. If you believe you have a special circumstance that requires an override to register for the course, please visit [Undergraduate Overrides](https://www.cics.umass.edu/academics/course-overrides/undergraduate-overrides) for more information.

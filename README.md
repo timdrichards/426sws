@@ -2,63 +2,6 @@
 
 This repository contains the course website, built with [Eleventy](https://www.11ty.dev/) and deployed with a `pathPrefix` of `/426sws/`.
 
-## Semester Management
-
-The site supports multiple semesters simultaneously. Each semester has a permanent URL that never changes, and a single setting controls which semester appears at the root URL.
-
-### How It Works
-
-```
-_data/course.js                        ← one line controls the root URL
-_includes/semester-content/
-  spring-2026.njk                      ← spring page content
-  summer-2026.njk                      ← summer page content
-semesters/
-  spring-2026.njk  →  /spring-2026/   ← permanent URL (always live)
-  summer-2026.njk  →  /summer-2026/   ← permanent URL (always live)
-index.njk          →  /               ← renders whichever semester is active
-```
-
-The root `index.njk` dynamically includes the content for `course.activeSemester`. The semester pages in `semesters/` each include the same content partial, so content lives in exactly one place per semester.
-
-### Switching the Active Semester
-
-Open `_data/course.js` and change `activeSemester`:
-
-```js
-export default {
-  title: 'COMPSCI 426 — Scalable Web Systems',
-  activeSemester: 'summer-2026',  // ← change this
-}
-```
-
-Rebuild and deploy. The root URL now serves the summer page. All prior semester URLs remain live.
-
-### Adding a New Semester
-
-1. Create the content file at `semesters/_<term>-<year>.md`. Write in standard Markdown — no frontmatter. The `url` filter is available for internal links (Nunjucks is processed before Markdown):
-   ```markdown
-   [Lecture 1]({{ '/material/lec/01/' | url }})
-   ```
-
-2. Create the semester page at `semesters/<term>-<year>.njk`:
-   ```njk
-   ---
-   layout: layouts/base.njk
-   title: Fall 2026
-   permalink: /fall-2026/
-   ---
-   {% renderFile "semesters/_fall-2026.md" %}
-   ```
-
-3. Share the permanent URL (`/426sws/fall-2026/`) with students as needed.
-
-4. When the semester begins, set `activeSemester: 'fall-2026'` in `_data/course.js` and redeploy.
-
-### Sharing a Semester URL Before It Goes Live at Root
-
-The permanent semester URL is live as soon as the site is deployed — regardless of what `activeSemester` is set to. You can share `/426sws/summer-2026/` with prospective students at any time without exposing the current semester's full course content at the root.
-
 ## Development
 
 ```bash
@@ -67,22 +10,192 @@ npm start       # local dev server with live reload
 npm run build   # production build to _site/
 ```
 
-## Project Structure
+---
+
+## How the Site Works
+
+The root page (`index.md` → `/`) lists all active semesters. Each semester lives in its own directory under `semesters/` and has a permanent URL. Shared course material (lectures, project docs) lives under `material/` and is linked from semester pages.
 
 ```
-_data/                  global data files (course metadata, active semester)
-_includes/
-  layouts/              base Nunjucks layouts
+index.md                          → /              root page; links to all semesters
 semesters/
-  _spring-2026.md       spring content (underscore prefix = not output as a page)
-  _summer-2026.md       summer content
-  spring-2026.njk  →   /spring-2026/  permanent URL
-  summer-2026.njk  →   /summer-2026/  permanent URL
+  spring-2026/
+    index.md                      → /spring-2026/  semester homepage
+    fall-2026.11tydata.json        semester + semesterName data (see below)
+    adm/
+      syllabus.md                 → /spring-2026/syllabus/
+      schedule.md                 → /spring-2026/schedule/
+    lec/                          semester-specific lecture pages
+    prj/
+      docs/
+        index.md                  → /spring-2026/prj/   semester project overview
+  fall-2026/
+    ...                           same structure
 material/
-  lec/                  lecture materials
-  prj/                  project documentation and sprint pages
-css/                    site stylesheet
-index.njk               root page (renders the active semester)
-eleventy.config.js      Eleventy configuration
-.eleventyignore         files excluded from site build
+  lec/
+    13/                           lecture 13 materials (deck, ekit, arc)
+    14/                           lecture 14 materials
+  prj/
+    docs/                         shared project documentation (git, health, etc.)
+    sprints/                      sprint pages
+_data/
+  course.js                       site-wide metadata (title)
+_includes/
+  layouts/
+    base.njk                      base HTML layout
+    prj.njk                       project section layout with nav
+css/
+  style.css                       site stylesheet
+eleventy.config.js                Eleventy configuration
+```
+
+---
+
+## Semester Directory Data
+
+Every file inside a semester directory inherits two variables from its `<semester>.11tydata.json`:
+
+```json
+{
+  "semester": "fall-2026",
+  "semesterName": "Fall 2026",
+  "layout": "layouts/prj.njk"
+}
+```
+
+These are available in frontmatter and page content as Nunjucks expressions. Pages inside the semester use them for permalinks and titles so they never hard-code the semester slug:
+
+```yaml
+---
+title: '{{ semesterName }} Schedule'
+permalink: '/{{ semester }}/schedule/'
+---
+```
+
+This means adding a page to one semester does not require touching any other semester's files.
+
+---
+
+## Adding a New Semester
+
+**1. Create the semester directory and data file.**
+
+```
+semesters/fall-2027/
+└── fall-2027.11tydata.json
+```
+
+```json
+{
+  "semester": "fall-2027",
+  "semesterName": "Fall 2027",
+  "layout": "layouts/base.njk"
+}
+```
+
+**2. Add the semester homepage.**
+
+```
+semesters/fall-2027/index.md
+```
+
+```yaml
+---
+layout: layouts/base.njk
+title: Fall 2027
+permalink: /fall-2027/
+---
+```
+
+Write the semester description in the body. Internal links use the `url` filter:
+
+```markdown
+- [Syllabus]({{ '/fall-2027/syllabus/' | url }})
+```
+
+**3. Add administrative pages** (`adm/syllabus.md`, `adm/schedule.md`). The permalinks use the `semester` variable inherited from the directory data file, so these files can be copied from an existing semester without modification:
+
+```yaml
+---
+layout: layouts/base.njk
+title: '{{ semesterName }} Syllabus'
+permalink: '/{{ semester }}/syllabus/'
+---
+```
+
+**4. Add a project overview page** if the semester has a team project:
+
+```
+semesters/fall-2027/prj/docs/index.md
+```
+
+Use `permalink: '/{{ semester }}/prj/'` to keep the URL consistent. Link to the shared docs under `material/prj/docs/` as needed.
+
+**5. Add the semester to the root page** (`index.md`):
+
+```markdown
+- [Fall 2027]({{ '/fall-2027/' | url }})
+```
+
+The semester URL is live as soon as the site is deployed — you can share it before listing it on the root page.
+
+---
+
+## Shared Material (`material/`)
+
+Content that is not semester-specific lives under `material/` and has its own permanent URL. Semester pages link to it rather than duplicating it.
+
+### Lectures (`material/lec/<number>/`)
+
+Each lecture directory contains:
+
+```
+material/lec/13/
+├── index.md            → /material/lec/13/    lecture landing page
+├── arc/                architecture scenario pages
+├── deck/               slide deck (PDF + HTML)
+└── ekit/               exercise kit (code + zip download)
+```
+
+### Project Documentation (`material/prj/docs/`)
+
+The shared project docs — git workflow, repository structure, health endpoints, endpoint descriptions, and so on — live here and are tagged `prj`. The `prjPages` collection in `eleventy.config.js` collects them and sorts by `navOrder`, which drives the project section nav rendered by `prj.njk`.
+
+A page appears in the project nav if it has a `navTitle` in its frontmatter. Pages without `navTitle` are still published and reachable by direct link — they just do not appear in the nav.
+
+```
+material/prj/docs/
+├── docs.11tydata.json   sets layout: prj.njk and tags: [prj] for all docs
+├── index.md             navOrder: 1  — project overview
+├── project.md           navOrder: 2  — project guide
+├── systems.md           navOrder: 3  — system choices
+├── starter.md           navOrder: 4  — starter repo
+├── repository.md        navOrder: 5  — repository structure
+├── git.md               navOrder: 6  — git workflow
+├── endpoint.md          navOrder: 8  — endpoint descriptions
+├── simulate.md          navOrder: 9  — simulating services
+└── health.md            (no navTitle — linked from repository.md)
+```
+
+---
+
+## Project Structure Summary
+
+```
+_data/                   course.js — site title
+_includes/layouts/       base.njk, prj.njk
+css/                     style.css
+material/
+  lec/<number>/          per-lecture deck, ekit, arc pages
+  prj/docs/              shared project documentation
+  prj/sprints/           sprint pages
+semesters/
+  <term>-<year>/
+    <term>-<year>.11tydata.json   semester slug + name data
+    index.md                      semester homepage
+    adm/                          syllabus, schedule
+    lec/                          semester lecture pages
+    prj/docs/                     semester project overview
+index.md                 root page
+eleventy.config.js       Eleventy config + prjPages collection
 ```

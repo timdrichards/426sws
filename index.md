@@ -23,4 +23,4 @@ COMPSCI 320 or COMPSCI 326 with a grade of C or better. 3 credits.
 
 - [Spring 2026]({{ '/spring-2026/' | url }})
 - [Summer 2026]({{ '/summer-2026/' | url }})
-- [Fall 2026]({{ '/fall-2026/' | url }})
+- [Spring 2027]({{ '/spring-2027/' | url }})

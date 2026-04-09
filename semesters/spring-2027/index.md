@@ -1,7 +1,7 @@
 ---
 layout: layouts/base.njk
-title: Fall 2026
-permalink: /fall-2026/
+title: 'COMPSCI 426 - {{ semesterName }}'
+permalink: '/{{ semester }}/'
 ---
 
 # COMPSCI 426 Scalable Web Systems
@@ -24,8 +24,8 @@ scalability in software design in the context of web application architecture.
 This course counts as an Elective for the CS and INFORM Majors. Prerequisite:
 COMPSCI 320 or COMPSCI 326 with a grade of C or better. 3 credits.
 
-- [Syllabus]({{ '/fall-2026/syllabus/' | url }})
-- [Schedule]({{ '/fall-2026/schedule/' | url }})
+- [Syllabus]({{ semester + '/syllabus/' | url }})
+- [Schedule]({{ semester + '/schedule/' | url }})
 
 ### Course at a Glance
 
