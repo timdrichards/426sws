@@ -17,8 +17,8 @@ Over the final five weeks of the semester, your team will design and build a sca
 | [Project Guide](project/)                 | Schedule, sprint deliverables, grading, sprint plan and report templates                        |
 | [Systems](systems/)                       | The five systems to choose from and their required services, databases, and workers             |
 | [Starter Repository](starter/)            | How to fork the starter repo, what it contains, and what to do at Sprint 1 kickoff              |
+| [Repository Structure](repository/)       | Required directory layout, key files, what not to commit, and how to keep the repo clean        |
 | [Git & GitHub Workflow](git/)             | Branch structure, commit standards, pull request workflow, sprint tags, and VS Code tips        |
-| [Health Endpoints](health/)               | Required `/health` endpoint format, Docker Compose healthcheck wiring, and system monitoring    |
 | [Endpoint Descriptions](endpoint/)        | How to document HTTP endpoints in your README, including templates and worked examples          |
 | [Simulating Services and Data](simulate/) | How to simulate CPU-bound and I/O-bound work, generate fake data with Faker, and seed databases |
 

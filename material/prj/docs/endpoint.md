@@ -1,7 +1,7 @@
 ---
 title: Project → Endpoint Descriptions
 navTitle: Endpoints
-navOrder: 7
+navOrder: 8
 ---
 
 # Writing Endpoint Descriptions

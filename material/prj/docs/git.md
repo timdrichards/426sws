@@ -1,7 +1,7 @@
 ---
 title: Project → Git Workflow
 navTitle: Git Workflow
-navOrder: 5
+navOrder: 6
 ---
 
 # Git & GitHub Workflow Guide

@@ -2,9 +2,10 @@
 layout: layouts/base.njk
 ---
 <nav class="prj-nav">
-  <span class="prj-nav-label">Project</span>
   {% for item in collections.prjPages %}
-    <a href="{{ item.url | url }}"{% if item.url == page.url %} class="active"{% endif %}>{{ item.data.navTitle }}</a>
+    {% if item.data.navTitle %}
+      <a href="{{ item.url | url }}"{% if item.url == page.url %} class="active"{% endif %}>{{ item.data.navTitle }}</a>
+    {% endif %}
   {% endfor %}
 </nav>
 {{ content | safe }}

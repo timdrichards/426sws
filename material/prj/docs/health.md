@@ -1,7 +1,5 @@
 ---
 title: Project → Health Endpoints and System Monitoring
-navTitle: Health Endpoints
-navOrder: 6
 ---
 
 # Health Endpoints and System Monitoring
