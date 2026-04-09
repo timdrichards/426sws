@@ -56,7 +56,7 @@ Demos do **not** happen during class. Instead, your team must **schedule a demo 
 1. **Before the demo**, make sure your sprint tag is pushed to your repository. The TA will verify that the tag exists on the main branch.
 2. **At the demo**, the TA will clone your repository fresh, check out the tag, and run `docker compose up`. Your team walks the TA through the sprint deliverables from that clean checkout. This is not optional — you cannot demo from a local development environment with uncommitted changes.
 3. **Every team member** should be present and able to explain any part of the system. If someone cannot attend, let the TA know in advance.
-4. **Demos are 15–20 minutes.** Walk through what you built, show it working, run your k6 tests, and answer the TA's questions.
+4. **Demos are 20-30 minutes.** Walk through what you built, show it working, run your k6 tests, and answer the TA's questions.
 
 ### Tagging Your Submissions
 
@@ -279,14 +279,14 @@ talking to each other via at least one synchronous HTTP call. Establish a k6 bas
 
 ## Ownership
 
-| Team member | Files / directories owned                                  | What they will build                                                                                                                                              |
-| ----------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Alice       | `event-catalog-service/`                                   | GET /events and GET /events/:id endpoints, events DB schema and migrations, Redis cache for event detail lookups                                                  |
-| Bob         | `ticket-purchase-service/`                                 | POST /purchases endpoint with idempotency key check, purchase DB schema, synchronous HTTP call to Payment Service                                                 |
+| Team member | Files / directories owned                                  | What they will build                                                                                                                                        |
+| ----------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alice       | `event-catalog-service/`                                   | GET /events and GET /events/:id endpoints, events DB schema and migrations, Redis cache for event detail lookups                                            |
+| Bob         | `ticket-purchase-service/`                                 | POST /purchases endpoint with idempotency key check, purchase DB schema, synchronous HTTP call to Payment Service                                           |
 | Carol       | `payment-service/`, `docker-compose.yml`, `k6/sprint-1.js` | Simulated payment endpoint returning success/failure, Docker Compose wiring for all services and their databases, baseline k6 load test against GET /events |
-| David       | `notification-service/`                                    | Redis pub/sub listener for confirmed purchases, simulated email log output, GET /health endpoint with queue depth reporting                                        |
-| Eve         | `waitlist-worker/`                                         | Redis queue consumer for waitlist entries, seat promotion logic, dead letter queue for malformed entries, GET /health with dlq_depth                               |
-| Frank       | `analytics-worker/`, `refund-service/`                     | Analytics event consumer with idempotent upserts, refund request endpoint with synchronous call to Payment Service, refund DB schema                              |
+| David       | `notification-service/`                                    | Redis pub/sub listener for confirmed purchases, simulated email log output, GET /health endpoint with queue depth reporting                                 |
+| Eve         | `waitlist-worker/`                                         | Redis queue consumer for waitlist entries, seat promotion logic, dead letter queue for malformed entries, GET /health with dlq_depth                        |
+| Frank       | `analytics-worker/`, `refund-service/`                     | Analytics event consumer with idempotent upserts, refund request endpoint with synchronous call to Payment Service, refund DB schema                        |
 
 ## Service Interfaces
 

@@ -267,4 +267,4 @@ Or as documented in the team's README. Verify:
 
 ### Scheduling
 
-Demos are **not** held during class. Ask teams to contact you via email or course Slack to schedule a 15-minute slot between 04.14 and 04.16. Book slots in advance so you are not flooded with last-minute requests.
+Demos are **not** held during class. Ask teams to contact you via email to schedule a 30-minute slot between 04.14 and 04.16. Book slots in advance so you are not flooded with last-minute requests.
