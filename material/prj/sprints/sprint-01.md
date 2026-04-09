@@ -1,6 +1,7 @@
 ---
 layout: layouts/prj.njk
 title: Project → Sprint 01
+permalink: /spring-2026/sprints/01/
 ---
 
 # Sprint 1 — Foundation
