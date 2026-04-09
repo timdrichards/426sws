@@ -19,12 +19,12 @@
           class="site-title">
           {{ course.title }}
         </a>
-        {% if semester %}
+        {% if semester and semesterName %}
           /
           <a
-            href="{{ page.url | url('/426sws/') }}"
+            href="{{ ('/' + semester + '/') | url('/426sws/') }}"
             class="site-title">
-            {{ semester }}
+            {{ semesterName }}
           </a>
         {% endif %}
       </nav>
