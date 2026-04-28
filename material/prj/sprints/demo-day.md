@@ -6,215 +6,364 @@ permalink: /spring-2026/demo-day/
 
 # Demo Day — 05.07
 
-The final class session is a **project expo**. Instead of teams presenting one at a time to a passive audience, every team sets up a station simultaneously. Classmates and course staff rotate through the room, stopping at each station to see the system run, ask questions, and leave feedback. The format rewards teams that built something they can genuinely show — not just talk about.
+The final class session is a **project expo**. Every team sets up a station and every student visits every other team. You will see each system run live, ask questions, and submit a reflection for each visit. Teaching staff rotate independently to grade each station.
 
 ---
 
-## Format
+## Format and Rotation
 
-Demo Day runs as a **science-fair expo**, not a series of presentations.
+Demo Day runs as a **structured rotation**, not a free-for-all. A rotation schedule will be distributed at the start of class showing exactly which station each group visits in each round.
 
-- Every team sets up a station before class begins (arrive by **9:45 AM**)
-- All stations open at **10:00 AM** when class starts
-- Students rotate freely — visit as many stations as you can during the session
-- Teaching staff rotates on a fixed schedule to grade each station
-- Stations close at **11:15 AM**
-- The last 15 minutes are for whole-class reflection and wrap-up
+- Every team sets up before class (arrive by **9:45 AM**)
+- All stations open at **10:00 AM**
+- Visiting rounds are **10–12 minutes each** — a signal marks each transition
+- Teaching staff rotate on their own fixed schedule to grade each station
+- Expo closes at **11:15 AM**
+- 11:15–11:30 is whole-class reflection and rankings submission
 
-Each team has a **table** with their laptop running the system, a printed architecture diagram, and whatever else they choose to bring. Two to three team members staff the station at any given time. The rest of the team is free to visit other stations — and is expected to.
+Each team splits in half for each round: **half the team staffs** the station while **the other half visits**. Teams should swap halves partway through so every team member spends time both staffing and visiting.
 
----
-
-## Who Staffs the Station
-
-Every team designates **two to three members** to staff the station throughout the expo. The other team members should spend the session visiting other teams' stations, asking questions, and completing peer feedback.
-
-**Rotating your team through the session is encouraged.** If your team has six people, you might have two people staff for the first half and two different people for the second half. Everyone should be able to explain the system — the TA could show up at any moment.
-
-**Everyone is evaluated individually** on their ability to explain the system. Teaching staff may stop by when the "usual" explainers are not at the station. Do not send only your strongest speakers to staff.
+**Everyone must be able to explain the full system.** Teaching staff may arrive at any moment and will call on whoever is present.
 
 ---
 
-## What to Bring to Your Station
+## What to Prepare
 
-Your station should have **at least two physical artifacts** that help visitors understand your system without reading your code. Bring things a person can look at while you talk.
+Teams need three things at their station. Nothing else is required.
 
-### Required: Architecture Diagram (Printed)
+### 1. System Architecture Diagram
 
-Print your system architecture diagram on paper — at minimum 11×17 inches, larger if possible. The diagram must show:
+Display your architecture diagram on one laptop (or printed, if you prefer). The diagram must show:
 
 - Every service and worker, labeled by name
 - Every database, labeled by which service owns it
-- Redis, with arrows showing which services read/write from it and what they use it for (cache, queue, pub/sub)
+- Redis, with arrows showing which services use it and for what (cache, queue, pub/sub)
 - Caddy and which services it fronts
-- Numbered arrows for the key request flows (e.g., "① User places order → Order Service → ② Payment Service → ③ Redis queue → ④ Dispatch Worker")
+- The key request flows with numbered arrows
 
-This diagram is what you point at while you talk. Visitors should be able to follow a request flow through the system by reading the diagram alone. Use color: one color for HTTP calls, another for Redis interactions, another for database reads/writes.
+The diagram is what you point at while you talk. A visitor should be able to follow a request through your system by reading the diagram alone.
 
-You made design decisions — this is where they become visible.
+### 2. Running System
 
-### Required: k6 Results Summary (Printed)
+Run your system on a second laptop, starting from a clean state before the expo opens:
 
-Print a one-page summary of your k6 results across all four sprints. Include:
+```bash
+git clone <your-repo>
+cd <repo-name>
+git checkout sprint-4
+docker compose up --scale <service>=3 --build
+docker compose ps   # every container must show (healthy)
+```
 
-| Sprint | Test                  | p50    | p95    | p99    | RPS  |
-| ------ | --------------------- | ------ | ------ | ------ | ---- |
-| 1      | Baseline (no cache)   |        |        |        |      |
-| 2      | With Redis cache      |        |        |        |      |
-| 2      | Async pipeline burst  |        |        |        |      |
-| 3      | Poison pill resilience|        |        |        |      |
-| 4      | Single instance       |        |        |        |      |
-| 4      | 3 replicas            |        |        |        |      |
-| 4      | Replica failure       |        |        |        |      |
+Use the exact `--scale` command documented in your README. If the system is not healthy by 10:00 AM, you lose time for your demo.
 
-Annotate the numbers — do not just print the table. Add a one-sentence observation next to each row: "Adding the Redis cache reduced p95 from 380ms to 42ms — every read was hitting the database before." Numbers without context tell visitors nothing.
+### 3. Team Cheat Sheet
 
-### Suggested: One Additional Artifact
+Prepare a one-page cheat sheet — one per team member — that each person can keep at the station or in their pocket while visiting other teams. It should cover the parts of the system each teammate owns: the key endpoints, queue names, Redis keys, and any non-obvious design decisions. You will not always be standing next to the person who built a given service. When a visitor or teaching staff member asks about it, the cheat sheet is what lets you answer accurately without guessing.
 
-Bring one more physical item that tells part of your story. Pick something that reflects what was interesting or hard about your system. Suggestions:
-
-- **A printed "request journey" walkthrough** — one full request traced step by step through every service and queue it touches, with the exact Redis commands and database queries it triggers. Good for systems with complex pipelines (IoT sensor reading, video upload, ticket purchase).
-- **A "what went wrong" card** — a 5×7 index card listing the three hardest bugs you hit during the project and how you fixed them. Visitors and TAs find this more interesting than a polished success story.
-- **A printed sequence diagram** of your most complex async pipeline (producer → queue → worker → pub/sub → second worker). Draw it by hand or use a tool — just print it.
-- **A failure mode map** — a small table listing every failure scenario you handle in Sprint 3, what triggers it, and what your system does instead of crashing. Good for teams that want to highlight their DLQ work.
-- **A team decision log** — a single printed page listing the five biggest technical decisions you made (e.g., "we chose Redis pub/sub over a queue for notifications because...") and why you made them.
-
-The artifact does not need to be fancy. A hand-drawn diagram on paper is fine. Printed Google Docs are fine. What matters is that there is something on the table a visitor can look at and learn from.
+The cheat sheet does not need to be formatted or printed professionally. A handwritten index card is fine. What matters is that every person can answer questions about every part of the system, including the parts they did not personally build.
 
 ---
 
-## What You Will Demonstrate
+## What to Demonstrate
 
-When teaching staff visit your station, they will ask you to show the system running. Prepare a **five-minute demo script** that hits the following beats in order. Practice it before 05.07.
+When a visitor or teaching staff arrives at your station, walk them through the following in order. Each system section below gives the specific commands. Aim for **8–10 minutes**.
 
-### 1. Start the System (30 seconds)
+Multiple teams in the class may have built the same system. That does not make your demo generic. Use the overview step to explain what makes your implementation specific: which parts you simulated and how, which design choices your team made, and what tradeoffs you considered. A visitor who has already seen another team's version of the same system should leave yours with a clear sense of what was different.
 
-Show that the system starts from a clean state:
+### All Systems — Core Sequence
 
-```bash
-docker compose up --scale order-service=3 --scale restaurant-service=3
-```
+**0. System overview (1–2 minutes)**
 
-(Use the exact `--scale` command from your README.)
+Before touching the terminal, give the visitor a one-paragraph orientation using the architecture diagram:
 
-While it starts, point to the architecture diagram and explain what is coming up. Do not stare at the terminal waiting.
+- What is this system? What does it simulate, and for whom? (e.g., "We built a food delivery platform — restaurants, customers, and drivers are all simulated, but the coordination between them is real.")
+- What are the major parts? Walk the diagram from left to right or top to bottom, naming each service in one sentence.
+- What did your team choose to simulate, and how? Many components in this system cannot be real in a course project — payments, video transcoding, sensor hardware, email delivery. Tell the visitor what you simulated and the mechanism: a configurable delay, a random pass rate, a stub that returns a canned response.
+- What is one design decision your team made that another team might have made differently? This could be a queue topology choice, a caching strategy, how you structured idempotency keys, or how you handled a particular failure mode.
 
-### 2. Show All Services Healthy (30 seconds)
+This overview is not a slide presentation. It is a two-minute conversation while pointing at the diagram.
+
+**1. Show the system is healthy (30 seconds)**
 
 ```bash
 docker compose ps
 ```
 
-Walk the visitor through the output. Every container should show `(healthy)`. Point to the services on your architecture diagram as you name them.
+Every container shows `(healthy)`. Point to each service on your architecture diagram as you name it.
 
-### 3. Walk Through One Request End-to-End (90 seconds)
+**2. Walk through one end-to-end flow (3–4 minutes)**
 
-Pick your most interesting end-to-end flow — not the simplest one, the most illustrative one. Trigger it from Holmes:
+Pick your most illustrative flow — not the simplest one. Trigger it live and narrate each step as it happens. Point to the relevant arrows on your architecture diagram. Show the async part: "Watch the worker logs — it should pick this up now."
 
+**3. Show the Redis cache working (1 minute)**
+
+Make the same GET request twice and show the second is faster. Or show `redis-cli MONITOR` so the visitor can see the GET/SET commands live.
+
+**4. Inject a poison pill and show DLQ routing (2 minutes)**
+
+```bash
+redis-cli -h redis RPUSH <your-queue> '{"broken": true}'
+```
+
+Show the worker catches it, routes it to the dead letter queue, and keeps running. Hit `/health` and show `dlq_depth` is non-zero while `status` is still `healthy`.
+
+**5. Show replication (1 minute)**
+
+Make several requests through Caddy and show different replicas handling them:
+
+```bash
+docker compose logs <service> | grep "GET /"
+# Different container names should appear
+```
+
+---
+
+## System-Specific Demo Checklists
+
+Find your system below. These are the flows to demonstrate and the commands that are expected to work. Practice each one before 05.07.
+
+---
+
+### System 1: Event Ticketing Platform
+
+**Flows to demonstrate:**
+
+1. **Browse and cache** — fetch a popular event twice; show Redis cache hit on the second request
+2. **Ticket purchase** — submit a purchase through the Ticket Purchase Service; narrate the synchronous call to Payment Service; watch the Notification Worker log the confirmation via pub/sub
+3. **Waitlist promotion** — inject a waitlist entry; show the Waitlist Worker promote the next user when a seat is released
+4. **Poison pill** — inject a malformed entry into the waitlist queue; show DLQ routing and healthy worker status
+5. **Replication** — send several requests through Caddy; show different replicas in logs
+
+**Poison pill command:**
 ```bash
 docker compose exec holmes bash
-curl -X POST http://order-service:8000/orders \
-  -H "Content-Type: application/json" \
-  -d '{ ... }' | jq .
+redis-cli -h redis RPUSH ticket:waitlist '{"broken": true}'
+docker compose logs -f waitlist-worker
+redis-cli -h redis LLEN ticket:waitlist:dlq
+curl -s http://<waitlist-worker>:<port>/health | jq '.queue'
 ```
 
-While the request runs, narrate what is happening:
+**Good questions visitors will ask:**
+- A payment fails after a seat is reserved — what state does the system clean up and where?
+- How does your idempotency implementation prevent a duplicate ticket purchase?
+- What happens if the Notification Worker is slow — does it block the purchase confirmation?
+- How does the Fraud Detection Worker know if it has already processed a given purchase ID?
+- If the Waitlist Worker crashes mid-promotion, what happens to that waitlist entry?
 
-- "The Order Service is validating the restaurant ID with a synchronous call to the Restaurant Service."
-- "Now it's pushing a message onto the dispatch queue in Redis."
-- "Watch the Dispatch Worker logs — it should pick this up in a moment."
+---
 
-Switch to the worker logs:
+### System 2: Food Delivery Coordination
 
+**Flows to demonstrate:**
+
+1. **Place an order** — submit an order through the Order Service; narrate the synchronous validation call to the Restaurant Service; show the order written to the database
+2. **Dispatch pipeline** — watch the Order Dispatch Worker assign a driver; watch the Preparation Tracker Worker begin the countdown; watch the Delivery Tracker Service simulate transit; watch the Notification Worker log each status update
+3. **Idempotency** — submit the same order twice with the same idempotency key; show the second request returns the original order without creating a duplicate
+4. **Poison pill** — inject an order referencing a nonexistent restaurant; show DLQ routing
+5. **Replication** — send several requests through Caddy; show different replicas in logs
+
+**Poison pill command:**
 ```bash
-docker compose logs -f dispatch-worker
-```
-
-The visitor should see the message flow through the pipeline live. Point to the relevant arrows on your architecture diagram.
-
-### 4. Show the Redis Cache Working (30 seconds)
-
-Make the same GET request twice. Show the response times — the second should be faster because it hits the cache:
-
-```bash
-curl -w "\nTime: %{time_total}s\n" http://order-service:8000/restaurants/123
-curl -w "\nTime: %{time_total}s\n" http://order-service:8000/restaurants/123
-```
-
-Or show it from `redis-cli MONITOR` so the visitor can see the GET/SET commands.
-
-### 5. Show DLQ Handling (30 seconds)
-
-Inject a poison pill:
-
-```bash
+docker compose exec holmes bash
 redis-cli -h redis RPUSH orders:dispatch '{"broken": true}'
+docker compose logs -f order-dispatch-worker
+redis-cli -h redis LLEN orders:dispatch:dlq
+curl -s http://<dispatch-worker>:<port>/health | jq '.queue'
 ```
 
-Hit the worker's `/health` endpoint and show `dlq_depth` is non-zero while the worker status is still `healthy`. "The worker saw this, knew it could not process it, and routed it to the dead letter queue without crashing."
+**Good questions visitors will ask:**
+- The Order Dispatch Worker cannot find a driver — what state is the order left in and how would an operator recover it?
+- Walk me through the idempotency implementation: where is the key stored and what does a duplicate request return?
+- How does your Surge Pricing Worker prevent applying a surcharge twice to the same restaurant?
+- If the Delivery Tracker Service restarts mid-transit, does it lose the simulated position?
+- How does the Rating Service invalidate the Restaurant Service's cached menu data?
 
-### 6. Show Replication (60 seconds)
+---
 
-Point to `docker compose ps` showing three replicas. Make several requests through Caddy and show that different replicas are handling them:
+### System 3: Video Processing Pipeline
 
+**Flows to demonstrate:**
+
+1. **Upload** — submit a video upload through the Upload Service; narrate the synchronous quota check against the Quota Service
+2. **Transcode pipeline** — watch the Transcode Worker process the job; watch all three downstream workers (Thumbnail, Search Index, Moderation) react to the `transcode:complete` pub/sub event
+3. **Catalog cache** — browse the catalog twice; show Redis cache hit on the second request
+4. **Idempotency** — upload the same file hash twice; show the second returns the existing record without queuing a second transcode job
+5. **Poison pill** — inject a malformed transcode job; show DLQ routing
+6. **Replication** — send several browse requests through Caddy; show different replicas in logs
+
+**Poison pill command:**
 ```bash
-docker compose logs order-service | grep "GET /orders"
+docker compose exec holmes bash
+redis-cli -h redis RPUSH video:transcode '{"broken": true}'
+docker compose logs -f transcode-worker
+redis-cli -h redis LLEN video:transcode:dlq
+curl -s http://<transcode-worker>:<port>/health | jq '.queue'
 ```
 
-Different container names should appear in the log output.
+**Good questions visitors will ask:**
+- Three workers all subscribe to `transcode:complete` — if the Search Index Worker is backed up, does it slow down the Thumbnail Worker?
+- The same file is uploaded twice with the same hash — where in the stack does the idempotency check happen?
+- The Moderation Worker rejects a video — how does the Catalog Service learn it is unavailable?
+- What is the Playback Service's deduplication window for view events, and where is that state stored?
+- If the Transcode Worker dies mid-job, what happens to that job?
 
 ---
 
-## How Other Students Visit Your Station
+### System 4: IoT Sensor Monitoring Dashboard
 
-When visiting another team's station, you are not just watching — you are evaluating for the peer feedback form. For each station you visit, you will fill out a short form (distributed at the start of class) with:
+**Flows to demonstrate:**
 
-- Team name and system they built
-- One thing that impressed you about their system
-- One question you asked and how they answered it
-- One thing you would have done differently
+1. **Ingest a reading** — POST a sensor reading to the Ingestion Service; show idempotency: same reading with same sensor ID and timestamp submitted twice does not double-queue
+2. **Storage pipeline** — watch the Storage Worker batch-write to the Readings DB
+3. **Anomaly detection** — post a reading that exceeds a threshold; watch the Anomaly Detection Worker call the Sensor Registry Service for thresholds; watch the Alert Service log the alert
+4. **Dashboard cache** — poll the Dashboard API twice for the same sensor; show the first reads from the DB and the second hits Redis
+5. **Poison pill** — inject a reading from an unregistered sensor; show DLQ routing
+6. **Replication** — send several ingestion requests through Caddy; show different replicas in logs
 
-You need to visit **at least three other teams** during the session. Peer feedback forms are due at the end of class.
+**Poison pill command:**
+```bash
+docker compose exec holmes bash
+redis-cli -h redis RPUSH sensor:ingestion '{"broken": true}'
+docker compose logs -f storage-worker
+redis-cli -h redis LLEN sensor:ingestion:dlq
+curl -s http://<storage-worker>:<port>/health | jq '.queue'
+```
 
-**Good questions to ask other teams:**
-
-- "What was the hardest part of your system to get right?"
-- "How does your idempotency implementation work?"
-- "What happens if the Dispatch Worker crashes mid-job?"
-- "Why did you choose pub/sub instead of a queue here?"
-- "What surprised you most about running this under load?"
-- "What would you change if you had another sprint?"
+**Good questions visitors will ask:**
+- The Anomaly Detection Worker caches sensor thresholds — when does a cache entry expire or refresh if a threshold changes?
+- The Storage Worker writes in batches — what triggers a flush, and what happens to readings if the worker is killed mid-batch?
+- A reading arrives from a sensor that is not registered — how does the worker know it is unregistered?
+- After injecting poison pills for bad sensors, does your dashboard still update for valid sensors? How do you show this?
+- How does the Device Management Service notify the Ingestion Service when a new sensor registers?
 
 ---
 
-## Grading at the Demo
+### System 5: Collaborative Document Workspace
 
-Teaching staff will visit every station. The grading rubric is the same as the Sprint 4 rubric (see [Sprint 4](sprint-04/)), applied at the demo.
+**Flows to demonstrate:**
 
-When staff arrive at your station:
+1. **Create and edit a document** — create a document and update it; narrate the synchronous permission check against the Auth Service
+2. **Event fan-out** — watch the `document:updated` event trigger the Revision Service snapshot, the Notification Worker, and the Search Service simultaneously via pub/sub
+3. **Export pipeline** — request a PDF export; watch the Export Worker pick up the job, call the Document Service for content, and complete
+4. **Auth cache** — show a permission lookup hitting Redis on the second request
+5. **Poison pill** — inject an export request for a deleted document; show DLQ routing
+6. **Replication** — send several document requests through Caddy; show different replicas in logs
 
-- **Do not** just hand them a laptop and step back. Walk them through the demo script.
-- **Do** point to the architecture diagram as you explain things. It shows you understand the system, not just the code.
-- **Do** have the k6 summary visible so you can reference numbers during the conversation.
-- **Do not** read from a script. Explain it the way you would explain it to a friend.
-- **Do** be honest if something is not working. "This part broke on Friday and we did not have time to fix it, but here is what it was supposed to do" is a better answer than pretending a broken demo is intentional.
+**Poison pill command:**
+```bash
+docker compose exec holmes bash
+redis-cli -h redis RPUSH document:export '{"broken": true}'
+docker compose logs -f export-worker
+redis-cli -h redis LLEN document:export:dlq
+curl -s http://<export-worker>:<port>/health | jq '.queue'
+```
 
-Every team member who is present must be able to answer questions. If a TA asks you how your DLQ handling works and you say "I don't know, that was someone else's part," that reflects on your individual grade. You should understand your whole system, not just your own service.
+**Good questions visitors will ask:**
+- Three workers subscribe to `document:updated` — walk me through the pub/sub topology and how each worker gets its own copy of the event
+- A user's write permission is revoked — what is the window during which the stale cached permission could still allow a write?
+- The Export Worker picks up a job for a document that was deleted — how does it detect this?
+- The Notification Worker receives the same `document:updated` event twice — what is the deduplication key?
+- How does the Activity Feed Worker avoid duplicate feed entries if the same event arrives twice?
+
+---
+
+## Reflection Form
+
+Every student submits a reflection for **each team they visit** on Canvas. The form is due **end of day 05.07**. Here are the exact questions so you know what to observe during your visits.
+
+These questions are also available as a paper form distributed at the start of class.
+
+---
+
+**Team Reflection Form**
+
+*Complete one form per team visited.*
+
+**Team name:** _______________________________________________
+
+**System they built:** _______________________________________________
+
+**1. Did their system run and demonstrate the flows they described?** *(Circle one)*
+
+&nbsp;&nbsp;&nbsp;&nbsp;Yes, fully &nbsp;&nbsp;&nbsp; Partially &nbsp;&nbsp;&nbsp; No
+
+**2. Describe one specific thing about their system that impressed you.** *(2–4 sentences)*
+
+&nbsp;
+
+&nbsp;
+
+**3. Write one question you asked them and summarize their answer.** *(1–3 sentences)*
+
+&nbsp;
+
+&nbsp;
+
+**4. Describe one design decision you would have made differently, and why.** *(1–3 sentences)*
+
+&nbsp;
+
+&nbsp;
+
+**5. Rate this station overall:** *(Circle one)*
+
+&nbsp;&nbsp;&nbsp;&nbsp;1 — Needs improvement &nbsp;&nbsp;&nbsp; 2 — Developing &nbsp;&nbsp;&nbsp; 3 — Meets expectations &nbsp;&nbsp;&nbsp; 4 — Strong &nbsp;&nbsp;&nbsp; 5 — Exceptional
+
+---
+
+**Team Ranking** *(submitted once at the end of the session, not per visit)*
+
+Rank all teams you visited from best (1) to least impressive. Do not include your own team. Each rank must be unique.
+
+| Rank | Team Name |
+|------|-----------|
+| 1 (Best) | |
+| 2 | |
+| 3 | |
+| 4 | |
+| 5 | |
+| … | |
+
+Rankings are aggregated across all students to determine the **top 3 teams**, which will be announced during the wrap-up at 11:15 AM. A team's aggregate ranking does not directly affect grades but will be used to recognize the strongest work of the semester.
+
+---
+
+## Grading
+
+Demo Day is worth **10% of the team project grade**, assessed on a 100-point scale.
+
+Teaching staff visit every station during the expo. The rubric below is used at each visit. Scores are finalized based on what is working and demonstrable at the live session — not on reports, plans, or what the system did in a previous sprint.
+
+### Demo Day Rubric
+
+| Area | Points | What Full Credit Looks Like |
+|------|--------|-----------------------------|
+| **System runs cleanly** | 25 | System starts from the `sprint-4` tag with replicas via `docker compose up --scale`. All containers show `(healthy)`. No manual intervention required to reach a working state. |
+| **Architecture diagram** | 15 | Diagram is visible and accurate. Shows every service, database, Redis role, and Caddy. Team references it during the overview and while narrating flows — it does the heavy lifting. |
+| **End-to-end demo** | 30 | Team walks through at least one complete request flow live, including the async pipeline component. Narration matches what is happening on screen. Logs, Redis, or database state is shown as evidence. |
+| **DLQ and resilience** | 15 | Poison pill is injected live and routed to the dead letter queue without crashing the worker. `/health` shows non-zero `dlq_depth`. System continues processing valid messages after the poison pill. |
+| **Questions answered** | 15 | Teaching staff will direct questions to whichever team member is present at the time of the visit — not just the person who built that component. Every person at the station must be able to explain the system overview, identify where a given service lives in the diagram, and describe the team's key design decisions. Answers are accurate, specific, and honest when something did not work. |
+| **Total** | **100** | |
+
+**Partial credit** is available when a deliverable is partially working — for example, the demo runs but the DLQ injection crashes the worker rather than routing cleanly.
+
+**Honesty is rewarded.** "This part broke on Friday and we ran out of time, but here is how it was designed to work" earns more credit than a broken demo that the team tries to pass off as working.
 
 ---
 
 ## Day-of Timeline
 
-| Time     | What Happens                                                                              |
-| -------- | ----------------------------------------------------------------------------------------- |
-| 9:45 AM  | Teams arrive, set up stations, start the system, confirm everything is healthy            |
-| 10:00 AM | Expo opens — all stations open simultaneously                                             |
-| 10:00–11:15 | Teaching staff rotates through stations; students visit other teams                  |
-| 11:15 AM | Expo closes — stations tear down                                                          |
-| 11:15–11:30 | Whole-class reflection and wrap-up                                                   |
-| End of day | Peer evaluations due on Canvas                                                        |
+| Time | What Happens |
+|------|--------------|
+| 9:45 AM | Teams arrive, set up stations, start the system, confirm everything is healthy |
+| 10:00 AM | Expo opens — all stations open simultaneously, rotation begins |
+| 10:00–11:15 | Teaching staff rotate to grade each station; students rotate through all other teams |
+| 11:15 AM | Expo closes — rotation ends |
+| 11:15–11:30 | Rankings submitted; whole-class reflection and top 3 announcement |
+| End of day | Reflection forms and peer evaluations due on Canvas |
 
-**Arrive by 9:45 AM.** If your system is not running by 10:00 AM, you lose time for your demo. There is no setup grace period — teaching staff begin rotating at 10:00 AM sharp.
+**Arrive by 9:45 AM.** Teaching staff begin rotating at 10:00 AM sharp. If your system is not running by then, you lose grading time.
 
 ---
 
@@ -224,26 +373,10 @@ Complete this before class starts on 05.07:
 
 - [ ] Clone from the `sprint-4` tag into a fresh directory and confirm `docker compose up --scale ...` starts cleanly
 - [ ] `docker compose ps` shows every container `(healthy)`
-- [ ] Architecture diagram is printed (at least 11×17 inches)
-- [ ] k6 results summary is printed with annotations
-- [ ] Third artifact (your choice) is ready
-- [ ] Demo script is practiced — you can do the five-minute walk-through without looking at notes
-- [ ] Every team member can explain the whole system, not just their own service
-- [ ] Peer feedback forms — pick up from the instructor at the start of class
+- [ ] Architecture diagram is ready to display — either on a dedicated laptop or printed
+- [ ] Team cheat sheet is prepared and printed — one per person, covering every service's key endpoints, queue names, and design decisions
+- [ ] Every person on the team can give the two-minute system overview from scratch: what it simulates, the major parts, what was simulated and how, one design decision the team made
+- [ ] Every person on the team can answer questions about services they did not build — use the cheat sheet to study your teammates' work before 05.07
+- [ ] Demo script for your system is practiced — you can walk through the 8–10 minute sequence without looking at notes
+- [ ] Canvas reflection forms are bookmarked and ready to submit during or after the session
 - [ ] Peer evaluations are ready to submit on Canvas (due end of day)
-
----
-
-## What Makes a Good Station
-
-The best stations share a few things in common:
-
-**The system actually runs.** This sounds obvious, but teams that spend the whole session explaining why it is not working will not score well. Start your laptop at 9:45 and stay at a working state until 11:15.
-
-**The presenters know the whole system.** Visitors ask unexpected questions. If the person staffing the station only knows their own service, the conversation dies quickly. Read your teammates' code before Demo Day.
-
-**The diagram does the heavy lifting.** When a visitor walks up, you can hand them the diagram before saying a word. A good diagram lets someone understand your system in 60 seconds. A bad one forces you to explain everything verbally.
-
-**The numbers tell a story.** The k6 summary should show a clear arc: baseline was slow, caching helped, replication helped more. If your numbers do not show improvement, you need to explain why — "we discovered our bottleneck was the payment service, not the database" is a fine answer if it is true.
-
-**The team is honest about what went wrong.** Every team had something go sideways. The teams that handle this well say "we ran out of time to implement X, but here is how it would have worked" or "this bug cost us two days — here is what we learned." That is more impressive than a polished demo of a simpler system.
