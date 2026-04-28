@@ -29,3 +29,9 @@ Each sprint includes the details for what your team needs to accomplish for that
 - [22 04.30.2026 Sprint 4 Work Session]({{ '/spring-2026/sprints/04/' | url }})
 - [23 05.05.2026 Sprint 4 Due]({{ '/spring-2026/sprints/04/' | url }})
 - [24 05.07.2026 Final Demos / Project Wrap-Up]({{ '/spring-2026/demo-day/' | url }})
+
+### Final Grading Scheme
+
+Please see the [Grading Scheme]({{ '/spring-2026/grading/' | url }}) page for details on how your final grade will be calculated, including the redistribution of weights due to changes in the course structure. The grading scheme offers three variants to ensure that your final grade reflects your strengths across the work you completed during the semester. You will automatically receive the variant that results in your best final grade.
+
+We are providing you with a [calculator tool]({{ '/spring-2026/grading/calc/' | url }}) to help you understand how the different variants affect your final grade based on your performance in the various categories. Please feel free to use this tool to explore how your grades in lectures, homework, and project assignments contribute to your overall grade under each variant. **We will be using the identical functions to compute your final grade.**

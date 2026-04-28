@@ -1,0 +1,758 @@
+---
+permalink: /spring-2026/grading/calc/
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade Calculator — COMPSCI 426 Spring 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #6c8ef7;
+      --accent-dim: #3a4a8a;
+      --text: #e2e6f3;
+      --text-dim: #8a90aa;
+      --green: #4caf86;
+      --yellow: #e6b84a;
+      --red: #e05c5c;
+      --radius: 10px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    header p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field-row:last-child { border-bottom: none; }
+
+    .field-label {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .field-sublabel {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.1rem;
+    }
+
+    .score-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .score-input-wrap input[type="number"] {
+      width: 72px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 0.35rem 0.5rem;
+      text-align: right;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .score-input-wrap input[type="number"]:focus {
+      border-color: var(--accent);
+    }
+
+    .score-input-wrap input[type="number"]::-webkit-inner-spin-button,
+    .score-input-wrap input[type="number"]::-webkit-outer-spin-button {
+      opacity: 0.5;
+    }
+
+    .score-denom {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    /* results */
+    #results {
+      margin-top: 1.75rem;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 600px) {
+      .results-grid { grid-template-columns: 1fr; }
+    }
+
+    .variant-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      transition: border-color 0.2s;
+    }
+
+    .variant-card.best {
+      border-color: var(--accent);
+      background: #1c2240;
+    }
+
+    .variant-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.4rem;
+    }
+
+    .variant-card.best .variant-label { color: var(--accent); }
+
+    .variant-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }
+
+    .variant-score {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .variant-letter {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+
+    .best-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 4px;
+      padding: 0.1rem 0.4rem;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .breakdown-table th {
+      text-align: left;
+      color: var(--text-dim);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .breakdown-table td {
+      padding: 0.45rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .breakdown-table tr:last-child td { border-bottom: none; }
+
+    .breakdown-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .note {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .letter-scale {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .letter-pill {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .letter-pill span { color: var(--text); font-weight: 600; }
+
+    .intro {
+      margin-bottom: 2rem;
+    }
+
+    .intro > p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin-bottom: 1.25rem;
+      line-height: 1.7;
+    }
+
+    .intro-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .intro-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0.1rem;
+    }
+
+    .intro-note {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent-dim);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      line-height: 1.6;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: var(--surface2); border-color: var(--accent-dim); }
+    .btn:active { opacity: 0.8; }
+
+    .btn-primary {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-primary:hover { background: #2a3870; }
+
+    .btn-danger {
+      border-color: #5a2a2a;
+      color: var(--red);
+    }
+
+    .btn-danger:hover { background: #2a1a1a; border-color: var(--red); }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Grade Calculator</h1>
+    <p>COMPSCI 426 Scalable Web Systems &mdash; Spring 2026</p>
+  </header>
+
+  <!-- Intro -->
+  <div class="intro">
+    <p>Enter your scores below to see your projected final grade. You don't need all scores — leave anything blank and the calculator will work with what you have, scaling the weights proportionally across the categories you've entered.</p>
+    <div class="intro-steps">
+      <div class="intro-step">
+        <div class="step-num">1</div>
+        <div>Enter your score (0–100) for each <strong>Lecture Activity</strong> you completed. Missing activities can be left blank.</div>
+      </div>
+      <div class="intro-step">
+        <div class="step-num">2</div>
+        <div>Enter your <strong>Homework 1</strong> score.</div>
+      </div>
+      <div class="intro-step">
+        <div class="step-num">3</div>
+        <div>Enter your scores for each <strong>Sprint</strong> and <strong>Demo Day</strong>. Sprints are weighted differently within the project category — the weights are shown under each field.</div>
+      </div>
+      <div class="intro-step">
+        <div class="step-num">4</div>
+        <div>The <strong>Results</strong> section updates instantly. It shows your score under all three grading variants. The one highlighted in blue is your best — that is the variant that will be applied to your final grade.</div>
+      </div>
+    </div>
+    <p class="intro-note">You do not need to choose a variant. At the end of the semester the instructor will run all three automatically and apply whichever gives you the highest grade.</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn btn-primary" onclick="randomize()">&#9684; Random grades</button>
+    <button class="btn" onclick="exportCSV()">&#8659; Export CSV</button>
+    <button class="btn btn-danger" onclick="clearAll()">&#10005; Clear all</button>
+  </div>
+
+  <!-- Lecture Activities -->
+  <div class="section">
+    <div class="section-title">Lecture Activities (8 total)</div>
+    <div id="activities-fields"></div>
+  </div>
+
+  <!-- Homework -->
+  <div class="section">
+    <div class="section-title">Homework</div>
+    <div class="field-row">
+      <div>
+        <div class="field-label">Homework 1 &mdash; Reliable Campus Kiosk Simulation</div>
+      </div>
+      <div class="score-input-wrap">
+        <input type="number" id="hw1" min="0" max="100" step="0.1" placeholder="—">
+        <span class="score-denom">/ 100</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Assignments -->
+  <div class="section">
+    <div class="section-title">Project Assignments</div>
+    <div class="field-row">
+      <div>
+        <div class="field-label">Sprint 1 &mdash; Foundation</div>
+        <div class="field-sublabel">Internal weight: 10 / 70</div>
+      </div>
+      <div class="score-input-wrap">
+        <input type="number" id="s1" min="0" max="100" step="0.1" placeholder="—">
+        <span class="score-denom">/ 100</span>
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <div class="field-label">Sprint 2 &mdash; Async Pipelines and Caching</div>
+        <div class="field-sublabel">Internal weight: 15 / 70</div>
+      </div>
+      <div class="score-input-wrap">
+        <input type="number" id="s2" min="0" max="100" step="0.1" placeholder="—">
+        <span class="score-denom">/ 100</span>
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <div class="field-label">Sprint 3 &mdash; Reliability and Poison Pills</div>
+        <div class="field-sublabel">Internal weight: 15 / 70</div>
+      </div>
+      <div class="score-input-wrap">
+        <input type="number" id="s3" min="0" max="100" step="0.1" placeholder="—">
+        <span class="score-denom">/ 100</span>
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <div class="field-label">Sprint 4 &mdash; Replication, Scaling, and Polish</div>
+        <div class="field-sublabel">Internal weight: 20 / 70</div>
+      </div>
+      <div class="score-input-wrap">
+        <input type="number" id="s4" min="0" max="100" step="0.1" placeholder="—">
+        <span class="score-denom">/ 100</span>
+      </div>
+    </div>
+    <div class="field-row">
+      <div>
+        <div class="field-label">Demo Day &mdash; Final Expo</div>
+        <div class="field-sublabel">Internal weight: 10 / 70</div>
+      </div>
+      <div class="score-input-wrap">
+        <input type="number" id="demo" min="0" max="100" step="0.1" placeholder="—">
+        <span class="score-denom">/ 100</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="section">
+      <div class="section-title">Results</div>
+      <div class="results-grid" id="variant-cards"></div>
+      <table class="breakdown-table" id="breakdown-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th class="num">Your Score</th>
+            <th class="num">A (14/43/43)</th>
+            <th class="num">B (15/25/60)</th>
+            <th class="num">C (20/40/40)</th>
+          </tr>
+        </thead>
+        <tbody id="breakdown-body"></tbody>
+      </table>
+      <div class="note">
+        Blank fields are excluded from calculations. Entered scores are clamped to [0, 100].
+        The best variant is applied automatically &mdash; no action needed.
+        <br><br>
+        <strong>Letter grade scale (UMass standard):</strong>
+        <div class="letter-scale">
+          <div class="letter-pill"><span>A</span> 93–100</div>
+          <div class="letter-pill"><span>A&minus;</span> 90–92.9</div>
+          <div class="letter-pill"><span>B+</span> 87–89.9</div>
+          <div class="letter-pill"><span>B</span> 83–86.9</div>
+          <div class="letter-pill"><span>B&minus;</span> 80–82.9</div>
+          <div class="letter-pill"><span>C+</span> 77–79.9</div>
+          <div class="letter-pill"><span>C</span> 73–76.9</div>
+          <div class="letter-pill"><span>C&minus;</span> 70–72.9</div>
+          <div class="letter-pill"><span>D+</span> 67–69.9</div>
+          <div class="letter-pill"><span>D</span> 60–66.9</div>
+          <div class="letter-pill"><span>F</span> &lt;60</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'cs426-spring2026-grades';
+
+  const ALL_IDS = [
+    ...Array.from({length: 8}, (_, i) => `la${i + 1}`),
+    'hw1', 's1', 's2', 's3', 's4', 'demo',
+  ];
+
+  // Build lecture activity inputs
+  const actFields = document.getElementById('activities-fields');
+  for (let i = 1; i <= 8; i++) {
+    actFields.innerHTML += `
+      <div class="field-row">
+        <div class="field-label">Lecture Activity ${i}</div>
+        <div class="score-input-wrap">
+          <input type="number" id="la${i}" min="0" max="100" step="0.1" placeholder="—">
+          <span class="score-denom">/ 100</span>
+        </div>
+      </div>`;
+  }
+
+  // --- persistence ---
+
+  function saveToStorage() {
+    const data = {};
+    ALL_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.value !== '') data[id] = el.value;
+    });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (_) {}
+  }
+
+  function loadFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      ALL_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] != null) el.value = data[id];
+      });
+    } catch (_) {}
+  }
+
+  // --- helpers ---
+
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+  function val(id) {
+    const el = document.getElementById(id);
+    if (!el || el.value === '') return null;
+    const n = parseFloat(el.value);
+    return isNaN(n) ? null : clamp(n, 0, 100);
+  }
+
+  function avg(values) {
+    const defined = values.filter(v => v !== null);
+    if (defined.length === 0) return null;
+    return defined.reduce((a, b) => a + b, 0) / defined.length;
+  }
+
+  function letterGrade(pct) {
+    if (pct === null) return '—';
+    if (pct >= 93) return 'A';
+    if (pct >= 90) return 'A−';
+    if (pct >= 87) return 'B+';
+    if (pct >= 83) return 'B';
+    if (pct >= 80) return 'B−';
+    if (pct >= 77) return 'C+';
+    if (pct >= 73) return 'C';
+    if (pct >= 70) return 'C−';
+    if (pct >= 67) return 'D+';
+    if (pct >= 60) return 'D';
+    return 'F';
+  }
+
+  function scoreColor(pct) {
+    if (pct === null) return 'var(--text-dim)';
+    if (pct >= 80) return 'var(--green)';
+    if (pct >= 67) return 'var(--yellow)';
+    return 'var(--red)';
+  }
+
+  function fmt(v) { return v === null ? '—' : v.toFixed(2) + '%'; }
+
+  // --- compute & render ---
+
+  function computeScores() {
+    const laScores = Array.from({length: 8}, (_, i) => val(`la${i + 1}`));
+    const laScore = avg(laScores);
+    const hwScore = val('hw1');
+    const sprintScores = [val('s1'), val('s2'), val('s3'), val('s4'), val('demo')];
+    const sprintWeights = [10, 15, 15, 20, 10];
+    let projNumer = 0, projDenom = 0;
+    sprintScores.forEach((s, i) => {
+      if (s !== null) { projNumer += s * sprintWeights[i]; projDenom += sprintWeights[i]; }
+    });
+    const projScore = projDenom > 0 ? projNumer / projDenom : null;
+    return { laScore, hwScore, projScore };
+  }
+
+  const VARIANTS = [
+    { name: 'Variant A', label: 'Neutral Redistribution',        weights: [0.14, 0.43, 0.43] },
+    { name: 'Variant B', label: 'Project-Weighted',              weights: [0.15, 0.25, 0.60] },
+    { name: 'Variant C', label: 'Homework & Activities Weighted', weights: [0.20, 0.40, 0.40] },
+  ];
+
+  function computeFinals({ laScore, hwScore, projScore }) {
+    return VARIANTS.map(v => {
+      const [wLA, wHW, wProj] = v.weights;
+      let numer = 0, denom = 0;
+      if (laScore   !== null) { numer += laScore   * wLA;   denom += wLA; }
+      if (hwScore   !== null) { numer += hwScore   * wHW;   denom += wHW; }
+      if (projScore !== null) { numer += projScore * wProj; denom += wProj; }
+      return denom > 0 ? numer / denom : null;
+    });
+  }
+
+  function compute() {
+    const scores = computeScores();
+    const finals = computeFinals(scores);
+    const { laScore, hwScore, projScore } = scores;
+
+    const bestIdx = finals.reduce((bi, f, i) => {
+      if (f === null) return bi;
+      if (bi === -1) return i;
+      return f > finals[bi] ? i : bi;
+    }, -1);
+
+    document.getElementById('variant-cards').innerHTML = VARIANTS.map((v, i) => {
+      const pct = finals[i];
+      const isBest = i === bestIdx;
+      const color = scoreColor(pct);
+      return `
+        <div class="variant-card${isBest ? ' best' : ''}">
+          <div class="variant-label">${v.name}${isBest ? '<span class="best-badge">Best</span>' : ''}</div>
+          <div class="variant-name">${v.label}</div>
+          <div class="variant-score" style="color:${color}">${pct !== null ? pct.toFixed(2) + '%' : '—'}</div>
+          <div class="variant-letter" style="color:${color}">${letterGrade(pct)}</div>
+        </div>`;
+    }).join('');
+
+    const rows = [
+      { label: 'Lecture Activities', score: laScore,   wa: 0.14, wb: 0.15, wc: 0.20 },
+      { label: 'Homework 1',         score: hwScore,   wa: 0.43, wb: 0.25, wc: 0.40 },
+      { label: 'Project Assignments',score: projScore, wa: 0.43, wb: 0.60, wc: 0.40 },
+    ];
+
+    document.getElementById('breakdown-body').innerHTML =
+      rows.map(r => `
+        <tr>
+          <td>${r.label}</td>
+          <td class="num">${r.score !== null ? r.score.toFixed(1) + '%' : '—'}</td>
+          <td class="num">${r.score !== null ? (r.score * r.wa).toFixed(2) + '%' : '—'}</td>
+          <td class="num">${r.score !== null ? (r.score * r.wb).toFixed(2) + '%' : '—'}</td>
+          <td class="num">${r.score !== null ? (r.score * r.wc).toFixed(2) + '%' : '—'}</td>
+        </tr>`).join('') + `
+      <tr>
+        <td><strong>Final Grade</strong></td>
+        <td class="num"></td>
+        ${finals.map((f, i) => `<td class="num"><strong${i === bestIdx ? ' style="color:var(--accent)"' : ''}>${fmt(f)}${i === bestIdx ? ' ★' : ''}</strong></td>`).join('')}
+      </tr>`;
+  }
+
+  // --- actions ---
+
+  function randomize() {
+    // Skewed toward B/B+ range with natural spread
+    function randGrade(lo = 62, hi = 100) {
+      const u = Math.random() + Math.random();
+      return Math.round((lo + (u / 2) * (hi - lo)) * 10) / 10;
+    }
+    ALL_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = randGrade();
+    });
+    saveToStorage();
+    compute();
+  }
+
+  function clearAll() {
+    ALL_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+    compute();
+  }
+
+  function exportCSV() {
+    const scores = computeScores();
+    const finals = computeFinals(scores);
+    const bestIdx = finals.reduce((bi, f, i) => {
+      if (f === null) return bi;
+      if (bi === -1) return i;
+      return f > finals[bi] ? i : bi;
+    }, -1);
+
+    const lines = [
+      ['COMPSCI 426 Spring 2026 — Grade Summary'],
+      [],
+      ['Input Scores'],
+      ['Item', 'Score'],
+      ...Array.from({length: 8}, (_, i) => {
+        const v = val(`la${i + 1}`);
+        return [`Lecture Activity ${i + 1}`, v !== null ? v.toFixed(1) : ''];
+      }),
+      ['Homework 1', scores.hwScore !== null ? scores.hwScore.toFixed(1) : ''],
+      ['Sprint 1 — Foundation', val('s1') !== null ? val('s1').toFixed(1) : ''],
+      ['Sprint 2 — Async Pipelines and Caching', val('s2') !== null ? val('s2').toFixed(1) : ''],
+      ['Sprint 3 — Reliability and Poison Pills', val('s3') !== null ? val('s3').toFixed(1) : ''],
+      ['Sprint 4 — Replication Scaling and Polish', val('s4') !== null ? val('s4').toFixed(1) : ''],
+      ['Demo Day', val('demo') !== null ? val('demo').toFixed(1) : ''],
+      [],
+      ['Category Averages'],
+      ['Category', 'Score'],
+      ['Lecture Activities (avg)', scores.laScore !== null ? scores.laScore.toFixed(2) : ''],
+      ['Homework 1', scores.hwScore !== null ? scores.hwScore.toFixed(2) : ''],
+      ['Project Assignments (weighted)', scores.projScore !== null ? scores.projScore.toFixed(2) : ''],
+      [],
+      ['Final Grade by Variant', 'Percentage', 'Letter', 'Applied?'],
+      ...VARIANTS.map((v, i) => [
+        `${v.name} — ${v.label}`,
+        finals[i] !== null ? finals[i].toFixed(2) + '%' : '',
+        letterGrade(finals[i]),
+        i === bestIdx ? 'YES (best)' : '',
+      ]),
+    ];
+
+    const csv = lines.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cs426-spring2026-grades.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // --- init ---
+
+  document.addEventListener('input', e => {
+    if (e.target.tagName === 'INPUT') { saveToStorage(); compute(); }
+  });
+
+  loadFromStorage();
+  compute();
+</script>
+</body>
+</html>
