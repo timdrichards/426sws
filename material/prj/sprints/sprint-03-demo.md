@@ -8,7 +8,7 @@ permalink: /spring-2026/sprints/03/demo/
 
 _COMPSCI 426 Scalable Web Systems - Spring 2026_
 
-_Demo window: Apr 28, 2026 → Apr 30, 2026_
+_Demo window: Apr 29, 2026 → May 01, 2026_
 
 ---
 

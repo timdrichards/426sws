@@ -17,7 +17,7 @@ Sprint 4 is the final sprint. Your system must be fully complete and running und
 | Date        | Day      | What Happens                                                                                                                  |
 | ----------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | **04.28**   | Tuesday  | **Sprint 4 Kickoff** — write your Sprint 4 plan and commit it to `main` before leaving class                                  |
-| 04.28–04.30 | Tue–Thu  | **Sprint 3 Demo Window** — schedule and complete your [Sprint 3 demo]({{ '/spring-2026/sprints/03/demo/' | url }}) with a TA  |
+| 04.29–05.01 | Wed–Fri  | **Sprint 3 Demo Window** — schedule and complete your [Sprint 3 demo]({{ '/spring-2026/sprints/03/demo/' | url }}) with a TA  |
 | 04.30       | Thursday | **Sprint 4 Work Session** — in-class work time, instructor and TA check-ins                                                   |
 | **05.05**   | Tuesday  | **Sprint 4 Due before class** — tag `sprint-4`, final submission                                                              |
 | **05.07**   | Thursday | **Final Demos / Project Wrap-Up** — demo day, peer evaluations due end of day                                                 |

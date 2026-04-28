@@ -19,7 +19,7 @@ Sprint 1 establishes the foundation of your system. By the end of this sprint yo
 | **04.07**   | Tuesday  | **Project Kickoff** — join your team on Canvas, choose a system, fork the starter repo, write your Sprint 1 plan |
 | 04.09       | Thursday | **Sprint 1 Work Session** — in-class work time, instructor and TA check-ins                                      |
 | **04.14**   | Tuesday  | **Sprint 1 Due before class** — tag `sprint-1`, submit GitHub repo link to Canvas, Sprint 2 kickoff begins       |
-| 04.14–04.16 | Tue–Thu  | **Sprint 1 Demo Window** — schedule and complete your demo with a TA                                             |
+| 04.15–04.17 | Wed–Fri  | **Sprint 1 Demo Window** — schedule and complete your demo with a TA                                             |
 
 ---
 
@@ -268,4 +268,4 @@ Or as documented in the team's README. Verify:
 
 ### Scheduling
 
-Demos are **not** held during class. Ask teams to contact you via email to schedule a 30-minute slot between 04.14 and 04.16. Book slots in advance so you are not flooded with last-minute requests.
+Demos are **not** held during class. Ask teams to contact you via email to schedule a 30-minute slot between 04.15 and 04.17. Book slots in advance so you are not flooded with last-minute requests.

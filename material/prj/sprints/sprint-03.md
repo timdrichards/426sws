@@ -17,10 +17,10 @@ Sprint 3 is about making your system handle failure gracefully. Every queue must
 | Date        | Day      | What Happens                                                                                 |
 | ----------- | -------- | -------------------------------------------------------------------------------------------- |
 | **04.21**   | Tuesday  | **Sprint 3 Kickoff** — write your Sprint 3 plan and commit it to `main` before leaving class |
-| 04.21–04.23 | Tue–Thu  | **Sprint 2 Demo Window** — schedule and complete your Sprint 2 demo with a TA                |
+| 04.22–04.24 | Wed–Fri  | **Sprint 2 Demo Window** — schedule and complete your Sprint 2 demo with a TA                |
 | 04.23       | Thursday | **Sprint 3 Work Session** — in-class work time, instructor and TA check-ins                  |
 | **04.28**   | Tuesday  | **Sprint 3 Due before class** — tag `sprint-3`, submit, Sprint 4 kickoff begins              |
-| 04.28–04.30 | Tue–Thu  | **Sprint 3 Demo Window** — schedule and complete your demo with a TA                         |
+| 04.29–05.01 | Wed–Fri  | **Sprint 3 Demo Window** — schedule and complete your demo with a TA                         |
 
 ---
 
@@ -408,4 +408,4 @@ Verify the test runs without errors. During the run, periodically hit the worker
 
 ### Scheduling
 
-Demos are **not** held during class. Ask teams to contact you via email to schedule a 30-minute slot between 04.28 and 04.30. Book slots in advance so you are not flooded with last-minute requests.
+Demos are **not** held during class. Ask teams to contact you via email to schedule a 30-minute slot between 04.29 and 05.01. Book slots in advance so you are not flooded with last-minute requests.

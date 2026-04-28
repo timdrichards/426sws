@@ -17,10 +17,10 @@ Sprint 2 adds the async backbone of your system. By the end of this sprint, your
 | Date        | Day      | What Happens                                                                                 |
 | ----------- | -------- | -------------------------------------------------------------------------------------------- |
 | **04.14**   | Tuesday  | **Sprint 2 Kickoff** — write your Sprint 2 plan and commit it to `main` before leaving class |
-| 04.14–04.16 | Tue–Thu  | **Sprint 1 Demo Window** — schedule and complete your Sprint 1 demo with a TA                |
+| 04.15–04.17 | Wed–Fri  | **Sprint 1 Demo Window** — schedule and complete your Sprint 1 demo with a TA                |
 | 04.16       | Thursday | **Sprint 2 Work Session** — in-class work time, instructor and TA check-ins                  |
 | **04.21**   | Tuesday  | **Sprint 2 Due before class** — tag `sprint-2`, submit, Sprint 3 kickoff begins              |
-| 04.21–04.23 | Tue–Thu  | **Sprint 2 Demo Window** — schedule and complete your demo with a TA                         |
+| 04.22–04.24 | Wed–Fri  | **Sprint 2 Demo Window** — schedule and complete your demo with a TA                         |
 
 ---
 
@@ -370,4 +370,4 @@ Both should run without errors. Sprint report should include the output and a br
 
 ### Scheduling
 
-Demos are **not** held during class. Ask teams to contact you via email or course to schedule a 30-minute slot between 04.21 and 04.23. Book slots in advance so you are not flooded with last-minute requests.
+Demos are **not** held during class. Ask teams to contact you via email or course to schedule a 30-minute slot between 04.22 and 04.24. Book slots in advance so you are not flooded with last-minute requests.
