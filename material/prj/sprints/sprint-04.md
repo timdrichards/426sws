@@ -321,14 +321,14 @@ Replication bugs are subtle. A service that works perfectly with one instance ca
 
 ### Rehearse the Final Demo
 
-The 05.07 demo is live in front of the class. Decide in advance:
+The 05.07 demo will be in class on the last day. Your team will always have at least 50% of the team at the table and 50% waling around seeing what other teams did. You will need to present your work to other students. Decide in advance:
 
 - Who will drive the terminal?
 - Who will narrate?
 - What is the order of the demo? (Start system → show health → show pipeline → scaling comparison → replica failure → DLQ demo → questions)
 - What happens if something breaks during the live demo?
 
-Do a dry run with your team before 05.07. The demo is 15–20 minutes. Know every command you will run.
+Do a dry run with your team before 05.07. The demo is 10 minutes. Know every command you will run. Know your system inside and out. You will be evaluated and you will evaluate. More details will be released on Friday.
 
 ### Peer Evaluations
 
