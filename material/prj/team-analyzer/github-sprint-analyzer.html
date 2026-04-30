@@ -1,0 +1,4165 @@
+---
+permalink: /team-inspector/
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>CS326 Sprint Analyzer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.30.0/date_fns.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+      :root {
+        --bg: #0d0f14;
+        --surface: #151820;
+        --surface2: #1c2030;
+        --border: #2a2f42;
+        --accent: #4f8ef7;
+        --accent2: #f7874f;
+        --warn: #f7c94f;
+        --danger: #f75f5f;
+        --ok: #4ff79a;
+        --text: #d8dce8;
+        --muted: #6b7394;
+        --mono: 'IBM Plex Mono', monospace;
+        --sans: 'IBM Plex Sans', sans-serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        line-height: 1.6;
+      }
+
+      /* ── Layout ── */
+      .shell {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 260px;
+        min-height: 100vh;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 24px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        flex-shrink: 0;
+      }
+
+      .sidebar-logo {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        text-transform: uppercase;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 8px;
+      }
+
+      .nav-item {
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--muted);
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .nav-item:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+      .nav-item.active {
+        background: var(--accent) 18;
+        color: var(--accent);
+      }
+      .nav-icon {
+        font-size: 15px;
+      }
+
+      .main {
+        flex: 1;
+        min-width: 0;
+        padding: 32px 40px;
+        max-width: 1200px;
+      }
+
+      /* ── Config Panel ── */
+      .config-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+        margin-bottom: 32px;
+      }
+
+      .panel-title {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .config-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .config-grid.cols3 {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      .config-grid.cols1 {
+        grid-template-columns: 1fr;
+      }
+
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 9px 12px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12px;
+        transition: border-color 0.15s;
+        outline: none;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--accent);
+      }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s;
+        font-family: var(--sans);
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #6fa3ff;
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-secondary {
+        background: var(--surface2);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-danger {
+        background: var(--danger) 22;
+        color: var(--danger);
+        border: 1px solid var(--danger) 44;
+      }
+      .btn-success {
+        background: var(--ok) 22;
+        color: var(--ok);
+        border: 1px solid var(--ok) 44;
+      }
+
+      /* ── Members Editor ── */
+      .member-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .member-row input {
+        flex: 1;
+      }
+      .member-remove {
+        background: none;
+        border: none;
+        color: var(--danger);
+        cursor: pointer;
+        font-size: 16px;
+        padding: 4px;
+        opacity: 0.6;
+        transition: opacity 0.15s;
+      }
+      .member-remove:hover {
+        opacity: 1;
+      }
+
+      /* ── Status Bar ── */
+      .status-bar {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--muted);
+      }
+      .status-dot.running {
+        background: var(--accent);
+        animation: pulse 1s infinite;
+      }
+      .status-dot.ok {
+        background: var(--ok);
+      }
+      .status-dot.error {
+        background: var(--danger);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      /* ── Summary Table ── */
+      .section {
+        margin-bottom: 40px;
+      }
+      .section-header {
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-header::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .data-table th {
+        text-align: left;
+        padding: 10px 12px;
+        background: var(--surface2);
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+      }
+      .data-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border) 88;
+        font-family: var(--mono);
+        font-size: 12px;
+        vertical-align: top;
+      }
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table tr:hover td {
+        background: var(--surface2) 88;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        font-family: var(--mono);
+      }
+      .badge-warn {
+        background: var(--warn) 22;
+        color: var(--warn);
+      }
+      .badge-danger {
+        background: var(--danger) 22;
+        color: var(--danger);
+      }
+      .badge-ok {
+        background: var(--ok) 22;
+        color: var(--ok);
+      }
+      .badge-info {
+        background: var(--accent) 22;
+        color: var(--accent);
+      }
+      .badge-muted {
+        background: var(--border);
+        color: var(--muted);
+      }
+
+      /* ── Charts ── */
+      .charts-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .chart-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .chart-card.wide {
+        grid-column: span 2;
+      }
+      .chart-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 16px;
+        font-family: var(--mono);
+      }
+      canvas {
+        max-height: 280px;
+      }
+
+      /* ── Student Cards ── */
+      .student-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 20px;
+      }
+      .student-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .student-card:hover {
+        border-color: var(--accent) 88;
+      }
+      .student-card.selected {
+        border-color: var(--accent);
+      }
+
+      .student-name {
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+      .student-handle {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 14px;
+      }
+
+      .metric-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 1px solid var(--border) 55;
+        font-size: 12px;
+      }
+      .metric-row:last-child {
+        border-bottom: none;
+      }
+      .metric-label {
+        color: var(--muted);
+      }
+      .metric-val {
+        font-family: var(--mono);
+        font-weight: 600;
+      }
+
+      .concern-list {
+        margin-top: 12px;
+      }
+      .concern-item {
+        font-size: 12px;
+        padding: 5px 8px;
+        border-radius: 4px;
+        margin-bottom: 4px;
+        display: flex;
+        gap: 6px;
+      }
+      .concern-item.warn {
+        background: var(--warn) 10;
+        color: var(--warn);
+      }
+      .concern-item.danger {
+        background: var(--danger) 10;
+        color: var(--danger);
+      }
+      .concern-item.ok {
+        background: var(--ok) 10;
+        color: var(--ok);
+      }
+      .concern-item.info {
+        background: var(--accent) 10;
+        color: var(--accent);
+      }
+
+      /* ── AI Panel ── */
+      .ai-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+      }
+      .ai-output {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        font-size: 13px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        max-height: 720px;
+        overflow-y: auto;
+        font-family: var(--sans);
+        margin-top: 16px;
+      }
+      .ai-streaming {
+        color: var(--text);
+      }
+      .ai-placeholder {
+        color: var(--muted);
+        font-style: italic;
+      }
+      .grading-student-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 0;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0;
+      }
+      .grading-student-tab {
+        background: transparent;
+        border: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 6px 6px 0 0;
+        color: var(--muted);
+        cursor: pointer;
+        font-family: var(--sans);
+        font-size: 12px;
+        padding: 6px 14px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .grading-student-tab:hover {
+        background: var(--surface);
+        color: var(--text);
+      }
+      .grading-student-tab.active {
+        background: var(--surface);
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .grading-student-pane {
+        display: none;
+      }
+      .grading-student-pane.active {
+        display: block;
+      }
+      .grading-pane-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0 8px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 12px;
+      }
+      .grading-pane-name {
+        font-weight: 600;
+        color: var(--accent);
+        font-size: 14px;
+      }
+      .grading-copy-btn {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 11px;
+        padding: 4px 12px;
+        font-family: var(--sans);
+      }
+      .grading-copy-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .grading-pane-body {
+        font-size: 12.5px;
+        line-height: 1.7;
+        font-family: var(--sans);
+      }
+      .grading-pane-body p {
+        margin: 4px 0 8px;
+      }
+      .grading-pane-body h1,
+      .grading-pane-body h2,
+      .grading-pane-body h3 {
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 600;
+        margin: 14px 0 4px;
+        font-family: var(--sans);
+      }
+      .grading-pane-body strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .grading-pane-body em {
+        color: var(--muted);
+      }
+      .grading-pane-body code {
+        font-family: var(--mono);
+        background: var(--surface2);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 11px;
+      }
+      .grading-pane-body ul,
+      .grading-pane-body ol {
+        margin: 4px 0 8px 20px;
+      }
+      .grading-pane-body li {
+        margin-bottom: 2px;
+      }
+      .grading-pane-body hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 14px 0;
+      }
+      .grading-score-line {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .grading-total-line {
+        color: var(--ok);
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .grading-canvas-label {
+        color: var(--warning, #f7c94f);
+        font-weight: 600;
+      }
+
+      .rubric-area {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 11px;
+        resize: vertical;
+        min-height: 140px;
+        outline: none;
+      }
+      .rubric-area:focus {
+        border-color: var(--accent);
+      }
+
+      .token-input-row {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+      }
+      .token-input-row input {
+        flex: 1;
+      }
+
+      /* ── Tab bar ── */
+      .tab-bar {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0;
+      }
+      .tab {
+        padding: 8px 18px;
+        border-radius: 6px 6px 0 0;
+        font-size: 13px;
+        cursor: pointer;
+        color: var(--muted);
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition: all 0.15s;
+      }
+      .tab:hover {
+        color: var(--text);
+      }
+      .tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+
+      .tab-pane {
+        display: none;
+      }
+      .tab-pane.active {
+        display: block;
+      }
+
+      /* ── Heatmap ── */
+      .heatmap-container {
+        overflow-x: auto;
+      }
+      .heatmap-grid {
+        display: grid;
+        gap: 3px;
+        font-family: var(--mono);
+        font-size: 10px;
+      }
+      .heatmap-cell {
+        width: 18px;
+        height: 18px;
+        border-radius: 3px;
+        background: var(--border);
+        cursor: default;
+        transition: transform 0.1s;
+      }
+      .heatmap-cell:hover {
+        transform: scale(1.4);
+        z-index: 10;
+        position: relative;
+      }
+
+      .progress-bar-wrap {
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 4px;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.4s;
+      }
+
+      /* ── Commit Log ── */
+      .commit-log {
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+      .commit-entry {
+        display: grid;
+        grid-template-columns: 130px 60px 50px 50px 1fr;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border) 44;
+        align-items: center;
+      }
+      .commit-entry:hover {
+        background: var(--surface2) 44;
+      }
+      .lm-flag {
+        color: var(--danger);
+        font-weight: 600;
+        font-size: 10px;
+      }
+
+      /* ── Misc ── */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+      }
+      .empty-state .icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+      }
+      .empty-state p {
+        font-size: 14px;
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 24px 0;
+      }
+
+      .pill-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+      .pill {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-family: var(--mono);
+        background: var(--surface2);
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+
+      details summary {
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      details[open] summary {
+        color: var(--accent);
+      }
+
+      .token-note {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .token-note a {
+        color: var(--accent);
+      }
+
+      select option {
+        background: var(--surface);
+      }
+
+      /* ── Light mode ───────────────────────────── */
+      body.light {
+        --bg: #f4f5f9;
+        --surface: #ffffff;
+        --surface2: #eaecf4;
+        --border: #ccd0e4;
+        --accent: #2563eb;
+        --accent2: #c4500f;
+        --warn: #a37000;
+        --danger: #dc2626;
+        --ok: #15803d;
+        --text: #1c1f2e;
+        --muted: #7078a0;
+      }
+      body.light .sidebar {
+        border-right-color: var(--border);
+      }
+      body.light input,
+      body.light select,
+      body.light textarea {
+        color: var(--text);
+        background: var(--surface);
+      }
+      body.light .rubric-area {
+        background: var(--surface2);
+      }
+      body.light .ai-output {
+        background: var(--surface2);
+      }
+      body.light .flag-danger {
+        background: #fef2f2;
+        border-color: #fca5a5;
+      }
+      body.light .flag-warn {
+        background: #fffbeb;
+        border-color: #fcd34d;
+      }
+      body.light .flag-ok {
+        background: #f0fdf4;
+        border-color: #86efac;
+      }
+      body.light .flag-info {
+        background: #eff6ff;
+        border-color: #93c5fd;
+      }
+      body.light .member-row input {
+        background: var(--surface2);
+      }
+      body.light select option {
+        background: var(--surface);
+        color: var(--text);
+      }
+
+      /* ── Theme toggle button ───────────────────── */
+      .theme-toggle {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        color: var(--muted);
+        cursor: pointer;
+        font-family: var(--sans);
+        font-size: 11px;
+        padding: 5px 12px;
+        transition:
+          color 0.15s,
+          border-color 0.15s;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 6px;
+      }
+      .theme-toggle:hover {
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      /* ── Saved-teams panel ─────────────────────── */
+      .saved-teams-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .saved-team-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 7px 10px;
+        font-size: 12px;
+      }
+      .saved-team-name {
+        flex: 1;
+        font-family: var(--mono);
+        color: var(--text);
+      }
+      .saved-team-row button {
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 11px;
+        font-family: var(--sans);
+        padding: 2px 8px;
+      }
+      .saved-team-row button:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .saved-team-row button.del:hover {
+        color: var(--danger);
+        border-color: var(--danger);
+      }
+      .save-team-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .save-team-row input {
+        flex: 1;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 12px;
+        padding: 6px 10px;
+        outline: none;
+      }
+      .save-team-row input:focus {
+        border-color: var(--accent);
+      }
+
+      /* ── Flatpickr calendar — match app theme ── */
+      .flatpickr-calendar {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        font-family: var(--sans);
+        color: var(--text);
+      }
+      .flatpickr-calendar.arrowTop::before {
+        border-bottom-color: var(--border);
+      }
+      .flatpickr-calendar.arrowTop::after {
+        border-bottom-color: var(--surface2);
+      }
+      .flatpickr-months {
+        background: var(--surface);
+        border-radius: 10px 10px 0 0;
+        padding: 4px 0;
+      }
+      .flatpickr-months .flatpickr-month,
+      .flatpickr-current-month,
+      .flatpickr-current-month .flatpickr-monthDropdown-months,
+      .flatpickr-current-month input.cur-year {
+        background: transparent;
+        color: var(--text);
+        fill: var(--text);
+      }
+      .flatpickr-monthDropdown-months,
+      .flatpickr-monthDropdown-months option {
+        background: var(--surface2);
+        color: var(--text);
+      }
+      .flatpickr-prev-month,
+      .flatpickr-next-month {
+        color: var(--muted);
+        fill: var(--muted);
+      }
+      .flatpickr-prev-month:hover svg,
+      .flatpickr-next-month:hover svg {
+        fill: var(--accent);
+      }
+      .flatpickr-weekdays,
+      span.flatpickr-weekday {
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .flatpickr-day {
+        color: var(--text);
+        border-radius: 6px;
+        border-color: transparent;
+      }
+      .flatpickr-day:hover,
+      .flatpickr-day:focus {
+        background: var(--surface);
+        border-color: var(--border);
+        color: var(--text);
+      }
+      .flatpickr-day.today {
+        border-color: var(--accent) !important;
+        color: var(--accent);
+      }
+      .flatpickr-day.today:hover {
+        background: var(--accent);
+        color: #fff;
+      }
+      .flatpickr-day.selected,
+      .flatpickr-day.selected:hover,
+      .flatpickr-day.startRange,
+      .flatpickr-day.endRange {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      .flatpickr-day.flatpickr-disabled,
+      .flatpickr-day.prevMonthDay,
+      .flatpickr-day.nextMonthDay {
+        color: var(--muted);
+        opacity: 0.35;
+      }
+      .flatpickr-time {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        border-radius: 0 0 10px 10px;
+      }
+      .flatpickr-time input,
+      .flatpickr-time .flatpickr-time-separator,
+      .flatpickr-time .flatpickr-am-pm {
+        background: transparent;
+        color: var(--text);
+        border-color: transparent;
+        font-family: var(--mono);
+      }
+      .flatpickr-time input:hover,
+      .flatpickr-time input:focus {
+        background: var(--surface2);
+      }
+      .numInputWrapper:hover {
+        background: var(--surface2);
+      }
+      .numInputWrapper span.arrowUp::after {
+        border-bottom-color: var(--muted);
+      }
+      .numInputWrapper span.arrowDown::after {
+        border-top-color: var(--muted);
+      }
+      /* Light mode overrides for Flatpickr */
+      body.light .flatpickr-calendar {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Scrollbars */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="banner-spacer"
+      style="height: 50px"></div>
+
+    <div class="shell">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="sidebar-logo">⬡ CS326 Sprint Analyzer</div>
+        <div
+          class="nav-item active"
+          onclick="showTab('config')"
+          id="nav-config">
+          <span class="nav-icon">⚙</span> Configuration
+        </div>
+        <div
+          class="nav-item"
+          onclick="showTab('overview')"
+          id="nav-overview">
+          <span class="nav-icon">◈</span> Team Overview
+        </div>
+        <div
+          class="nav-item"
+          onclick="showTab('charts')"
+          id="nav-charts">
+          <span class="nav-icon">◫</span> Charts
+        </div>
+        <div
+          class="nav-item"
+          onclick="showTab('students')"
+          id="nav-students">
+          <span class="nav-icon">◉</span> Student Deep Dive
+        </div>
+        <div
+          class="nav-item"
+          onclick="showTab('ai')"
+          id="nav-ai">
+          <span class="nav-icon">✦</span> AI Grading
+        </div>
+        <div style="flex: 1"></div>
+        <div style="padding: 10px 12px">
+          <button
+            class="theme-toggle"
+            id="theme-toggle-btn"
+            onclick="toggleTheme()">
+            <span id="theme-icon">☀</span> Light mode
+          </button>
+          <div style="font-size: 11px; color: var(--muted)">
+            GitHub API calls run in your browser. Tokens are never sent to any
+            server.
+          </div>
+        </div>
+      </nav>
+
+      <main class="main">
+        <!-- ═══════════════════════════════════════ CONFIG -->
+        <div
+          id="tab-config"
+          class="tab-pane active">
+          <div class="config-panel">
+            <div class="panel-title">⚙ GitHub Configuration</div>
+            <div class="config-grid">
+              <div>
+                <label>GitHub Token</label>
+                <input
+                  type="password"
+                  id="cfg-token"
+                  placeholder="ghp_xxxxxxxxxxxx" />
+                <div class="token-note">
+                  Needs <code>repo</code> scope.
+                  <a
+                    href="https://github.com/settings/tokens"
+                    target="_blank"
+                    >Generate one ↗</a
+                  >
+                </div>
+              </div>
+              <div>
+                <label>Repository (owner/name)</label>
+                <input
+                  type="text"
+                  id="cfg-repo"
+                  placeholder="owner/repo-name" />
+                <div class="token-note">
+                  Paste a full GitHub URL — it will be normalized automatically.
+                  Contributors are fetched when both token and repo are set.
+                </div>
+              </div>
+              <div>
+                <label>Sprint Start</label>
+                <input
+                  type="text"
+                  id="cfg-start"
+                  placeholder="Click to pick date & time"
+                  readonly />
+              </div>
+              <div>
+                <label>Sprint End</label>
+                <input
+                  type="text"
+                  id="cfg-end"
+                  placeholder="Click to pick date & time"
+                  readonly />
+              </div>
+              <div>
+                <label>Last-Minute Window (hours before sprint end)</label>
+                <input
+                  type="number"
+                  id="cfg-lm-hours"
+                  value="24"
+                  min="1"
+                  max="168" />
+              </div>
+              <div>
+                <label>Default Branch</label>
+                <input
+                  type="text"
+                  id="cfg-branch"
+                  value="main"
+                  placeholder="main" />
+              </div>
+            </div>
+          </div>
+
+          <div class="config-panel">
+            <div class="panel-title">◉ Team Members</div>
+            <div
+              style="font-size: 12px; color: var(--muted); margin-bottom: 16px">
+              GitHub Username → Display Name
+            </div>
+            <div id="members-list"></div>
+            <button
+              class="btn btn-secondary"
+              onclick="addMember()"
+              style="margin-top: 8px; font-size: 12px">
+              + Add Member
+            </button>
+          </div>
+
+          <div
+            class="config-panel"
+            style="margin-top: 8px">
+            <div class="panel-title">⬡ Saved Teams</div>
+            <div
+              style="font-size: 12px; color: var(--muted); margin-bottom: 10px">
+              Save the current analysis under a name to reload it later or share
+              with others.
+            </div>
+            <div class="save-team-row">
+              <input
+                type="text"
+                id="save-team-name"
+                placeholder="Team name (e.g. Group 4 – Sprint 3)" />
+              <button
+                class="btn btn-secondary"
+                onclick="saveTeam()"
+                style="white-space: nowrap; font-size: 12px">
+                Save Current
+              </button>
+            </div>
+            <div
+              id="saved-teams-list"
+              class="saved-teams-list"></div>
+          </div>
+
+          <div
+            style="display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap">
+            <button
+              class="btn btn-primary"
+              id="run-btn"
+              onclick="runAnalysis()">
+              ↓ Run Analysis (fetch)
+            </button>
+            <button
+              class="btn btn-secondary"
+              id="run-cached-btn"
+              onclick="runAnalysisCached()">
+              ◈ Run Analysis (cached)
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="loadDemo()">
+              Load Demo Data
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="exportJSON()">
+              ↓ Export JSON
+            </button>
+            <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--muted); cursor:pointer; user-select:none;">
+              <input type="checkbox" id="export-include-token" style="cursor:pointer;">
+              Include token in export
+            </label>
+            <label
+              class="btn btn-secondary"
+              style="cursor: pointer; margin: 0">
+              ↑ Import JSON
+              <input
+                type="file"
+                id="import-json-input"
+                accept=".json"
+                style="display: none"
+                onchange="importJSON(this)" />
+            </label>
+            <button
+              class="btn btn-secondary"
+              style="color: var(--danger); border-color: var(--danger)"
+              onclick="clearData()">
+              ✕ Clear Data
+            </button>
+          </div>
+
+          <div
+            id="status-bar"
+            class="status-bar"
+            style="margin-top: 20px">
+            <div
+              class="status-dot"
+              id="status-dot"></div>
+            <span id="status-text"
+              >Configure above and click Run Analysis.</span
+            >
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ OVERVIEW -->
+        <div
+          id="tab-overview"
+          class="tab-pane">
+          <div id="overview-content">
+            <div class="empty-state">
+              <div class="icon">◈</div>
+              <p>Run an analysis first.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ CHARTS -->
+        <div
+          id="tab-charts"
+          class="tab-pane">
+          <div id="charts-content">
+            <div class="empty-state">
+              <div class="icon">◫</div>
+              <p>Run an analysis first.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ STUDENTS -->
+        <div
+          id="tab-students"
+          class="tab-pane">
+          <div id="students-content">
+            <div class="empty-state">
+              <div class="icon">◉</div>
+              <p>Run an analysis first.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ AI GRADING -->
+        <div
+          id="tab-ai"
+          class="tab-pane">
+          <div class="ai-panel">
+            <div class="panel-title">✦ AI Grading Assistant</div>
+            <p
+              style="font-size: 13px; color: var(--muted); margin-bottom: 20px">
+              Provide an Anthropic API key to run AI-powered grading. The model
+              will analyze all collected GitHub data, inspect the actual
+              repository contents, and produce per-student grades, evidence, and
+              rubric-mapped feedback.
+            </p>
+
+            <div
+              class="config-grid"
+              style="margin-bottom: 16px">
+              <div>
+                <label
+                  >Anthropic API Key
+                  <span style="color: var(--ok); font-weight: 400"
+                    >(not needed inside Claude.ai)</span
+                  ></label
+                >
+                <input
+                  type="password"
+                  id="ai-token"
+                  placeholder="sk-ant-... (only required when running locally)" />
+                <div class="token-note">
+                  Inside Claude.ai this field is ignored — auth is handled
+                  automatically. Only needed when opening the file locally.
+                </div>
+              </div>
+              <div>
+                <label>Grade Target</label>
+                <select id="ai-target">
+                  <option value="team">Whole Team</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 16px">
+              <label>Rubric (paste your rubric text here)</label>
+              <textarea
+                class="rubric-area"
+                id="ai-rubric"
+                placeholder="Paste your rubric criteria here. The AI will map its findings to these specific criteria..."></textarea>
+            </div>
+
+            <div style="margin-bottom: 16px">
+              <label
+                >Also analyze repository code? (fetches file tree + key
+                files)</label
+              >
+              <select id="ai-fetch-code">
+                <option value="yes">
+                  Yes — fetch repo file tree and sample files
+                </option>
+                <option value="no">No — use GitHub metrics only</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap">
+              <button
+                class="btn btn-primary"
+                id="ai-run-btn"
+                onclick="runAI()">
+                ✦ Run AI Grading
+              </button>
+              <button
+                class="btn btn-danger"
+                id="ai-stop-btn"
+                onclick="stopAI()"
+                style="display:none">
+                ✕ Stop
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="copyAIOutput()">
+                Copy Output
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="downloadMarkdownPrompt()"
+                title="Download the full grading prompt as a Markdown file — drag into Claude.ai or ChatGPT">
+                ↓ Download Prompt (.md)
+              </button>
+            </div>
+
+            <div
+              id="ai-output"
+              class="ai-output">
+              <span class="ai-placeholder"
+                >AI grading output will appear here. You must run an analysis
+                first, then provide an API key and rubric above.</span
+              >
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // ════════════════════════════════════════════
+      //  STATE
+      // ════════════════════════════════════════════
+      let STATE = {
+        commits: [],
+        prs: [],
+        reviews: [],
+        issues: [],
+        summary: {},
+        members: {}, // {username: displayName}
+        config: {},
+      }
+
+      let chartInstances = {}
+      let startPicker = null
+      let endPicker = null
+      let aiAbortController = null
+
+      // ════════════════════════════════════════════
+      //  NAV
+      // ════════════════════════════════════════════
+      function showTab(id) {
+        document
+          .querySelectorAll('.main > .tab-pane')
+          .forEach(p => p.classList.remove('active'))
+        document
+          .querySelectorAll('.nav-item')
+          .forEach(n => n.classList.remove('active'))
+        document.getElementById('tab-' + id).classList.add('active')
+        document.getElementById('nav-' + id).classList.add('active')
+      }
+
+      // ════════════════════════════════════════════
+      //  MEMBER EDITOR
+      // ════════════════════════════════════════════
+      const DEFAULT_MEMBERS = [
+        { u: 'alex_chen', n: 'Alex Chen' },
+        { u: 'jordan_lee', n: 'Jordan Lee' },
+        { u: 'sam_rivers', n: 'Sam Rivers' },
+        { u: 'morgan_kim', n: 'Morgan Kim' },
+        { u: 'casey_jones', n: 'Casey Jones' },
+      ]
+
+      function renderMemberList() {
+        const list = document.getElementById('members-list')
+        list.innerHTML = ''
+        const rows = list.dataset.rows ? JSON.parse(list.dataset.rows) : []
+        rows.forEach((m, i) => {
+          const row = document.createElement('div')
+          row.className = 'member-row'
+          row.innerHTML = `
+      <input type="text" placeholder="github_username" value="${m.u}" oninput="updateMember(${i},'u',this.value)" />
+      <input type="text" placeholder="Display Name" value="${m.n}" oninput="updateMember(${i},'n',this.value)" />
+      <button class="member-remove" onclick="removeMember(${i})">✕</button>
+    `
+          list.appendChild(row)
+        })
+        list.dataset.rows = JSON.stringify(rows)
+      }
+
+      function getMembersFromDOM() {
+        const rows = JSON.parse(
+          document.getElementById('members-list').dataset.rows || '[]'
+        )
+        return rows
+      }
+
+      function updateMember(i, key, val) {
+        const rows = JSON.parse(
+          document.getElementById('members-list').dataset.rows
+        )
+        rows[i][key] = val
+        document.getElementById('members-list').dataset.rows =
+          JSON.stringify(rows)
+      }
+
+      function addMember() {
+        const rows = JSON.parse(
+          document.getElementById('members-list').dataset.rows || '[]'
+        )
+        rows.push({ u: '', n: '' })
+        document.getElementById('members-list').dataset.rows =
+          JSON.stringify(rows)
+        renderMemberList()
+      }
+
+      function removeMember(i) {
+        const rows = JSON.parse(
+          document.getElementById('members-list').dataset.rows
+        )
+        rows.splice(i, 1)
+        document.getElementById('members-list').dataset.rows =
+          JSON.stringify(rows)
+        renderMemberList()
+      }
+
+      // ════════════════════════════════════════════
+      //  STATUS
+      // ════════════════════════════════════════════
+      function setStatus(msg, state = 'idle') {
+        document.getElementById('status-text').textContent = msg
+        const dot = document.getElementById('status-dot')
+        dot.className = 'status-dot'
+        if (state === 'running') dot.classList.add('running')
+        if (state === 'ok') dot.classList.add('ok')
+        if (state === 'error') dot.classList.add('error')
+      }
+
+      // ════════════════════════════════════════════
+      //  GITHUB API HELPERS
+      // ════════════════════════════════════════════
+      async function ghFetch(token, url, allPages = false) {
+        const headers = {
+          Authorization: `token ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+        }
+        if (!allPages) {
+          const r = await fetch(url, { method: 'GET', headers, mode: 'cors' })
+          if (!r.ok) {
+            const body = await r.text()
+            throw new Error(`GitHub API ${r.status}: ${body}`)
+          }
+          return r.json()
+        }
+        // paginate
+        let page = 1,
+          results = []
+        while (true) {
+          const sep = url.includes('?') ? '&' : '?'
+          const r = await fetch(`${url}${sep}per_page=100&page=${page}`, {
+            method: 'GET',
+            headers,
+            mode: 'cors',
+          })
+          if (!r.ok) {
+            const body = await r.text()
+            throw new Error(`GitHub API ${r.status}: ${body}`)
+          }
+          const data = await r.json()
+          if (!Array.isArray(data) || data.length === 0) break
+          results = results.concat(data)
+          if (data.length < 100) break
+          page++
+        }
+        return results
+      }
+
+      function parseDate(str) {
+        return new Date(str)
+      }
+      function toUTC(str) {
+        return new Date(str).getTime()
+      }
+
+      // ════════════════════════════════════════════
+      //  REPO INPUT HELPERS
+      // ════════════════════════════════════════════
+      function parseRepoInput(val) {
+        val = val.trim()
+        // SSH: git@github.com:owner/repo.git
+        const ssh = val.match(/git@github\.com:([^/]+\/[^/?#\s]+?)(?:\.git)?$/)
+        if (ssh) return ssh[1]
+        // HTTPS: https://github.com/owner/repo[/anything]
+        const https = val.match(/github\.com\/([^/]+\/[^/?#\s]+)/)
+        if (https) return https[1].replace(/\.git$/, '')
+        return val
+      }
+
+      async function fetchContributors() {
+        const token = document.getElementById('cfg-token').value.trim()
+        const repo = document.getElementById('cfg-repo').value.trim()
+        if (!token || !repo.includes('/')) return
+
+        setStatus('Fetching contributors…', 'running')
+        try {
+          const contributors = await ghFetch(
+            token,
+            `https://api.github.com/repos/${repo}/contributors?per_page=100`
+          )
+          if (!Array.isArray(contributors) || contributors.length === 0) {
+            setStatus('No contributors found for this repository.', 'error')
+            return
+          }
+
+          // Fetch display names in parallel; fall back to login if profile unavailable
+          const profiles = await Promise.all(
+            contributors.map(c =>
+              ghFetch(token, `https://api.github.com/users/${c.login}`)
+                .catch(() => ({ login: c.login, name: null }))
+            )
+          )
+
+          const rows = profiles.map(p => ({ u: p.login, n: p.name || p.login }))
+          const list = document.getElementById('members-list')
+          list.dataset.rows = JSON.stringify(rows)
+          renderMemberList()
+          setStatus(
+            `Loaded ${rows.length} contributor${rows.length !== 1 ? 's' : ''} from ${repo}. Edit display names as needed.`,
+            'ok'
+          )
+        } catch (e) {
+          const msg = e.message || String(e)
+          const isCORS =
+            msg.toLowerCase().includes('failed to fetch') ||
+            msg.toLowerCase().includes('networkerror') ||
+            msg.toLowerCase().includes('load failed')
+          setStatus(
+            isCORS ?
+              '⚠ Network blocked — GitHub API unavailable in this context. Open the file locally to use this feature.'
+            : 'Could not fetch contributors: ' + msg,
+            'error'
+          )
+        }
+      }
+
+      // ════════════════════════════════════════════
+      //  CACHED ANALYSIS (re-render without fetching)
+      // ════════════════════════════════════════════
+      function runAnalysisCached() {
+        const hasSummary = Object.keys(STATE.summary).length > 0
+        const hasRawData = STATE.commits.length > 0 || STATE.prs.length > 0
+        if (!hasSummary && !hasRawData) {
+          setStatus('No cached data — use "Run Analysis (fetch)" first.', 'error')
+          return
+        }
+        const memberRows = getMembersFromDOM().filter(m => m.u && m.n)
+        if (!memberRows.length) {
+          setStatus('Add at least one team member.', 'error')
+          return
+        }
+        const members = {}
+        memberRows.forEach(m => (members[m.u.trim()] = m.n.trim()))
+        STATE.members = members
+
+        // If raw commit/PR data is present, re-apply the last-minute window and
+        // rebuild summary — lets the user adjust lmHours without re-fetching
+        if (hasRawData) {
+          const lmHours = parseInt(document.getElementById('cfg-lm-hours').value) || 24
+          const sprintEnd = document.getElementById('cfg-end').value
+          if (sprintEnd) {
+            const endDT = new Date(sprintEnd)
+            const lmDT = new Date(endDT.getTime() - lmHours * 3600 * 1000)
+            STATE.commits.forEach(c => {
+              c.isLastMinute = c.date >= lmDT && c.date <= endDT
+            })
+            STATE.prs.forEach(p => {
+              p.isLastMinute = p.createdAt >= lmDT
+            })
+          }
+          buildSummary()
+        }
+
+        renderOverview()
+        renderCharts()
+        renderStudents()
+        populateAITargets()
+        setStatus(
+          `Rendered from cached data — ${STATE.commits.length} commit${STATE.commits.length !== 1 ? 's' : ''}, ${STATE.prs.length} PR${STATE.prs.length !== 1 ? 's' : ''}.`,
+          'ok'
+        )
+        showTab('overview')
+      }
+
+      // ════════════════════════════════════════════
+      //  MAIN ANALYSIS
+      // ════════════════════════════════════════════
+      async function runAnalysis() {
+        const token = document.getElementById('cfg-token').value.trim()
+        const repo = document.getElementById('cfg-repo').value.trim()
+        const sprintStart = document.getElementById('cfg-start').value
+        const sprintEnd = document.getElementById('cfg-end').value
+        const lmHours =
+          parseInt(document.getElementById('cfg-lm-hours').value) || 24
+        const branch =
+          document.getElementById('cfg-branch').value.trim() || 'main'
+
+        if (!token) return setStatus('GitHub token is required.', 'error')
+        if (!repo.includes('/'))
+          return setStatus('Repository must be owner/name format.', 'error')
+
+        const memberRows = getMembersFromDOM().filter(m => m.u && m.n)
+        if (!memberRows.length)
+          return setStatus('Add at least one team member.', 'error')
+
+        const members = {}
+        memberRows.forEach(m => (members[m.u.trim()] = m.n.trim()))
+
+        const startDT = new Date(sprintStart)
+        const endDT = new Date(sprintEnd)
+        const deadlineDT = endDT
+        const lmDT = new Date(deadlineDT.getTime() - lmHours * 3600 * 1000)
+
+        STATE.config = {
+          token,
+          repo,
+          sprintStart,
+          sprintEnd,
+          lmHours,
+          branch,
+          startDT,
+          endDT,
+          deadlineDT,
+          lmDT,
+          members,
+        }
+        STATE.members = members
+
+        document.getElementById('run-btn').disabled = true
+        document.getElementById('run-cached-btn').disabled = true
+        setStatus('Connecting to GitHub...', 'running')
+
+        try {
+          // ── Verify repo ──
+          const repoData = await ghFetch(
+            token,
+            `https://api.github.com/repos/${repo}`
+          )
+          setStatus(
+            `Connected to ${repoData.full_name}. Fetching commits...`,
+            'running'
+          )
+
+          // ── Commits ──
+          const allCommits = await ghFetch(
+            token,
+            `https://api.github.com/repos/${repo}/commits?sha=${branch}&since=${startDT.toISOString()}&until=${endDT.toISOString()}`,
+            true
+          )
+          setStatus(
+            `Fetched ${allCommits.length} commits. Fetching commit stats...`,
+            'running'
+          )
+
+          const commits = []
+          let done = 0
+          // Batch stat fetching (can be slow)
+          for (const c of allCommits) {
+            const login = c.author?.login || c.commit?.author?.name || null
+            if (!login || !members[login]) {
+              done++
+              continue
+            }
+            let additions = 0,
+              deletions = 0,
+              files = 0
+            try {
+              const detail = await ghFetch(
+                token,
+                `https://api.github.com/repos/${repo}/commits/${c.sha}`
+              )
+              additions = detail.stats?.additions || 0
+              deletions = detail.stats?.deletions || 0
+              files = detail.files?.length || 0
+            } catch (e) {}
+            const date = parseDate(c.commit.author.date)
+            commits.push({
+              sha: c.sha.slice(0, 7),
+              author: login,
+              name: members[login],
+              date,
+              dateTs: date.getTime(),
+              message: (c.commit.message || '').split('\n')[0].slice(0, 80),
+              additions,
+              deletions,
+              files_changed: files,
+              isLastMinute: date >= lmDT && date <= deadlineDT,
+              url: c.html_url,
+            })
+            done++
+            setStatus(
+              `Fetching commit stats... ${done}/${allCommits.length}`,
+              'running'
+            )
+          }
+
+          setStatus('Fetching pull requests...', 'running')
+
+          // ── PRs ──
+          const allPRs = await ghFetch(
+            token,
+            `https://api.github.com/repos/${repo}/pulls?state=all&sort=created&direction=desc`,
+            true
+          )
+          const prs = []
+          for (const pr of allPRs) {
+            const created = parseDate(pr.created_at)
+            if (created < startDT || created > endDT) continue
+            const login = pr.user?.login
+            if (!login || !members[login]) continue
+            const mergedAt = pr.merged_at ? parseDate(pr.merged_at) : null
+            const hoursToMerge =
+              mergedAt ? (mergedAt - created) / 3600000 : null
+            prs.push({
+              number: pr.number,
+              title: (pr.title || '').slice(0, 60),
+              author: login,
+              name: members[login],
+              createdAt: created,
+              mergedAt,
+              state: pr.state,
+              merged: !!pr.merged_at,
+              additions: pr.additions || 0,
+              deletions: pr.deletions || 0,
+              changedFiles: pr.changed_files || 0,
+              comments: pr.comments || 0,
+              reviewComments: pr.review_comments || 0,
+              hoursToMerge,
+              isLastMinute: created >= lmDT,
+              url: pr.html_url,
+            })
+          }
+
+          setStatus('Fetching PR reviews...', 'running')
+
+          // ── Reviews ──
+          const reviews = []
+          for (const pr of prs) {
+            try {
+              const prReviews = await ghFetch(
+                token,
+                `https://api.github.com/repos/${repo}/pulls/${pr.number}/reviews`,
+                true
+              )
+              for (const rev of prReviews) {
+                const reviewer = rev.user?.login
+                if (!reviewer || !members[reviewer]) continue
+                const submitted =
+                  rev.submitted_at ? parseDate(rev.submitted_at) : pr.createdAt
+                reviews.push({
+                  prNumber: pr.number,
+                  prTitle: pr.title.slice(0, 50),
+                  prAuthor: pr.author,
+                  reviewer,
+                  reviewerName: members[reviewer],
+                  state: rev.state,
+                  bodyLen: (rev.body || '').length,
+                  submittedAt: submitted,
+                  url: pr.url,
+                })
+              }
+            } catch (e) {}
+          }
+
+          setStatus('Fetching issues...', 'running')
+
+          // ── Issues ──
+          const allIssues = await ghFetch(
+            token,
+            `https://api.github.com/repos/${repo}/issues?state=all&since=${startDT.toISOString()}`,
+            true
+          )
+          const issues = []
+          for (const iss of allIssues) {
+            if (iss.pull_request) continue
+            const created = parseDate(iss.created_at)
+            if (created > endDT) continue
+            const login = iss.user?.login
+            if (!login || !members[login]) continue
+            issues.push({
+              number: iss.number,
+              title: (iss.title || '').slice(0, 60),
+              author: login,
+              name: members[login],
+              createdAt: created,
+              state: iss.state,
+              comments: iss.comments || 0,
+            })
+          }
+
+          STATE.commits = commits
+          STATE.prs = prs
+          STATE.reviews = reviews
+          STATE.issues = issues
+
+          // ── Build summary ──
+          buildSummary()
+          setStatus(
+            `Analysis complete. ${commits.length} commits, ${prs.length} PRs, ${reviews.length} reviews.`,
+            'ok'
+          )
+
+          // Render everything
+          renderOverview()
+          renderCharts()
+          renderStudents()
+          populateAITargets()
+          persistState()
+          renderSavedTeams()
+
+          showTab('overview')
+        } catch (e) {
+          const msg = e.message || String(e)
+          const isCORS =
+            msg.toLowerCase().includes('failed to fetch') ||
+            msg.toLowerCase().includes('networkerror') ||
+            msg.toLowerCase().includes('load failed')
+          if (isCORS) {
+            setStatus(
+              '⚠ Network blocked — GitHub API calls are blocked inside embedded iframes (Claude artifacts). Download this HTML file and open it directly in your browser to use the GitHub integration. The "Load Demo Data" button works here.',
+              'error'
+            )
+          } else {
+            setStatus('Error: ' + msg, 'error')
+          }
+          console.error(e)
+        }
+
+        document.getElementById('run-btn').disabled = false
+        document.getElementById('run-cached-btn').disabled = false
+      }
+
+      // ════════════════════════════════════════════
+      //  BUILD SUMMARY
+      // ════════════════════════════════════════════
+      function buildSummary() {
+        const { members, commits, prs, reviews, issues, config } = STATE
+        STATE.summary = {}
+        for (const [uname, display] of Object.entries(members)) {
+          const uc = commits.filter(c => c.author === uname)
+          const up = prs.filter(p => p.author === uname)
+          const ur = reviews.filter(r => r.reviewer === uname)
+          const ui = issues.filter(i => i.author === uname)
+          const lmCommits = uc.filter(c => c.isLastMinute).length
+          const lmPRs = up.filter(p => p.isLastMinute).length
+          const mergedPRs = up.filter(p => p.merged)
+          const avgHoursToMerge =
+            mergedPRs.length ?
+              mergedPRs.reduce((s, p) => s + (p.hoursToMerge || 0), 0) /
+              mergedPRs.length
+            : null
+          STATE.summary[uname] = {
+            display,
+            uname,
+            commits: uc.length,
+            linesAdded: uc.reduce((s, c) => s + c.additions, 0),
+            linesDeleted: uc.reduce((s, c) => s + c.deletions, 0),
+            filesChanged: uc.reduce((s, c) => s + c.files_changed, 0),
+            prsOpened: up.length,
+            prsMerged: mergedPRs.length,
+            reviewsGiven: ur.length,
+            approvals: ur.filter(r => r.state === 'APPROVED').length,
+            changesRequested: ur.filter(r => r.state === 'CHANGES_REQUESTED')
+              .length,
+            avgReviewLen:
+              ur.length ?
+                Math.round(ur.reduce((s, r) => s + r.bodyLen, 0) / ur.length)
+              : 0,
+            issuesOpened: ui.length,
+            lastMinuteCommits: lmCommits,
+            lastMinutePRs: lmPRs,
+            avgHoursToMerge:
+              avgHoursToMerge !== null ?
+                Math.round(avgHoursToMerge * 10) / 10
+              : null,
+          }
+        }
+      }
+
+      function teamAvg(field) {
+        const vals = Object.values(STATE.summary)
+          .map(s => s[field])
+          .filter(v => v !== null && v !== undefined)
+        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0
+      }
+
+      // ════════════════════════════════════════════
+      //  CONCERNS ENGINE
+      // ════════════════════════════════════════════
+      function getConcerns(s) {
+        const concerns = []
+        const avg = f => teamAvg(f)
+        const aa = avg('commits')
+        const la = avg('linesAdded')
+        const pa = avg('prsOpened')
+        const ra = avg('reviewsGiven')
+
+        if (s.commits < aa * 0.7 && aa > 0)
+          concerns.push({
+            type: 'danger',
+            msg: 'Commits significantly below team average',
+          })
+        else if (s.commits > aa * 1.5)
+          concerns.push({ type: 'ok', msg: 'Commits well above team average' })
+
+        if (s.linesAdded < la * 0.7 && la > 0)
+          concerns.push({
+            type: 'warn',
+            msg: 'Lines added significantly below average',
+          })
+        else if (s.linesAdded > la * 1.5)
+          concerns.push({ type: 'ok', msg: 'Lines added well above average' })
+
+        if (s.prsOpened < pa * 0.7 && pa > 0)
+          concerns.push({ type: 'warn', msg: 'PRs opened below average' })
+        else if (s.prsOpened > pa * 1.5)
+          concerns.push({ type: 'ok', msg: 'PRs opened well above average' })
+
+        if (s.reviewsGiven === 0 && ra > 0)
+          concerns.push({ type: 'danger', msg: 'Zero code reviews given' })
+        else if (s.reviewsGiven === 0 && ra === 0)
+          concerns.push({ type: 'warn', msg: 'No reviews (team-wide issue)' })
+
+        if (s.commits > 0) {
+          const lmPct = s.lastMinuteCommits / s.commits
+          if (lmPct > 0.5)
+            concerns.push({
+              type: 'warn',
+              msg: `${Math.round(lmPct * 100)}% of commits were last-minute`,
+            })
+          else if (lmPct === 0)
+            concerns.push({ type: 'ok', msg: 'No last-minute commits' })
+        }
+
+        if (s.prsOpened > 0) {
+          const lmPct = s.lastMinutePRs / s.prsOpened
+          if (lmPct > 0.5)
+            concerns.push({
+              type: 'warn',
+              msg: `${Math.round(lmPct * 100)}% of PRs were last-minute`,
+            })
+        }
+
+        if (
+          s.avgHoursToMerge !== null &&
+          s.avgHoursToMerge < 0.5 &&
+          s.prsMerged > 0
+        )
+          concerns.push({
+            type: 'danger',
+            msg: `Avg PR-to-merge: ${s.avgHoursToMerge}h (likely self-merged without review)`,
+          })
+
+        return concerns
+      }
+
+      // ════════════════════════════════════════════
+      //  RENDER OVERVIEW
+      // ════════════════════════════════════════════
+      function renderOverview() {
+        const { config } = STATE
+        const summary = Object.values(STATE.summary)
+        const totalCommits = summary.reduce((s, x) => s + x.commits, 0)
+        const totalLMs = summary.reduce((s, x) => s + x.lastMinuteCommits, 0)
+        const totalReviews = summary.reduce((s, x) => s + x.reviewsGiven, 0)
+
+        const html = `
+    <div class="section">
+      <div class="section-header">Sprint Summary</div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
+        ${statCard('Total Commits', totalCommits, '')}
+        ${statCard(
+          'Total PRs',
+          summary.reduce((s, x) => s + x.prsOpened, 0),
+          ''
+        )}
+        ${statCard(
+          'Code Reviews',
+          totalReviews,
+          totalReviews === 0 ? 'badge-danger' : 'badge-ok'
+        )}
+        ${statCard(
+          'Last-Minute %',
+          totalCommits > 0 ?
+            Math.round((totalLMs / totalCommits) * 100) + '%'
+          : '—',
+          totalCommits > 0 && totalLMs / totalCommits > 0.5 ? 'badge-warn' : ''
+        )}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">Team Contribution Summary</div>
+      <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Commits</th>
+            <th>Lines +</th>
+            <th>Lines -</th>
+            <th>PRs</th>
+            <th>Merged</th>
+            <th>Reviews</th>
+            <th>LM Commits</th>
+            <th>LM PRs</th>
+            <th>Avg h→Merge</th>
+            <th>Issues</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${summary
+            .map(s => {
+              const avgC = teamAvg('commits')
+              const cBadge =
+                s.commits < avgC * 0.7 && avgC > 0 ? 'badge-danger'
+                : s.commits > avgC * 1.5 ? 'badge-ok'
+                : ''
+              const rBadge = s.reviewsGiven === 0 ? 'badge-danger' : ''
+              const lmCPct = s.commits > 0 ? s.lastMinuteCommits / s.commits : 0
+              const lmPBadge =
+                s.prsOpened > 0 && s.lastMinutePRs / s.prsOpened > 0.5 ?
+                  'badge-warn'
+                : ''
+              return `<tr>
+              <td>
+                <div style="font-weight:600">${s.display}</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">@${
+                  s.uname
+                }</div>
+              </td>
+              <td><span class="badge ${cBadge}">${s.commits}</span></td>
+              <td style="color:var(--ok)">+${s.linesAdded.toLocaleString()}</td>
+              <td style="color:var(--danger)">-${s.linesDeleted.toLocaleString()}</td>
+              <td>${s.prsOpened}</td>
+              <td>${s.prsMerged}</td>
+              <td><span class="badge ${rBadge}">${s.reviewsGiven}</span></td>
+              <td><span class="badge ${
+                lmCPct > 0.5 ? 'badge-warn' : 'badge-muted'
+              }">${s.lastMinuteCommits}/${s.commits}</span></td>
+              <td><span class="badge ${lmPBadge}">${s.lastMinutePRs}/${
+                s.prsOpened
+              }</span></td>
+              <td style="font-family:var(--mono)">${
+                s.avgHoursToMerge !== null ? s.avgHoursToMerge + 'h' : '—'
+              }</td>
+              <td>${s.issuesOpened}</td>
+            </tr>`
+            })
+            .join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">Team-Level Flags</div>
+      ${buildTeamFlags()}
+    </div>
+  `
+
+        document.getElementById('overview-content').innerHTML = html
+      }
+
+      function statCard(label, val, badge) {
+        return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${label}</div>
+    <div style="font-size:26px;font-weight:600;font-family:var(--mono);">${val}</div>
+  </div>`
+      }
+
+      function buildTeamFlags() {
+        const summary = Object.values(STATE.summary)
+        const flags = []
+        const totalReviews = summary.reduce((s, x) => s + x.reviewsGiven, 0)
+        if (totalReviews === 0)
+          flags.push({
+            type: 'danger',
+            msg: 'Zero code reviews submitted across the entire team.',
+          })
+        const totalC = summary.reduce((s, x) => s + x.commits, 0)
+        const totalLM = summary.reduce((s, x) => s + x.lastMinuteCommits, 0)
+        if (totalC > 0 && totalLM / totalC > 0.5)
+          flags.push({
+            type: 'warn',
+            msg: `${Math.round(
+              (totalLM / totalC) * 100
+            )}% of all commits were last-minute — poor sprint pacing.`,
+          })
+        const maxC = Math.max(...summary.map(s => s.commits))
+        if (totalC > 0 && maxC / totalC > 0.4) {
+          const dom = summary.find(s => s.commits === maxC)
+          flags.push({
+            type: 'info',
+            msg: `${dom.display} accounts for ${Math.round(
+              (maxC / totalC) * 100
+            )}% of all commits — potential uneven workload.`,
+          })
+        }
+        const selfMergers = summary.filter(
+          s =>
+            s.avgHoursToMerge !== null &&
+            s.avgHoursToMerge < 0.5 &&
+            s.prsMerged > 0
+        )
+        if (selfMergers.length)
+          flags.push({
+            type: 'danger',
+            msg: `${selfMergers
+              .map(s => s.display)
+              .join(
+                ', '
+              )} merged PRs in under 30 minutes — review likely skipped.`,
+          })
+        if (!flags.length)
+          flags.push({
+            type: 'ok',
+            msg: 'No major team-level concerns detected.',
+          })
+        return flags
+          .map(
+            f => `<div class="concern-item ${
+              f.type
+            }" style="margin-bottom:6px;font-size:13px;">
+    ${
+      f.type === 'danger' ? '⚠'
+      : f.type === 'warn' ? '⚠'
+      : f.type === 'ok' ? '✓'
+      : 'ℹ'
+    } ${f.msg}
+  </div>`
+          )
+          .join('')
+      }
+
+      // ════════════════════════════════════════════
+      //  CHARTS
+      // ════════════════════════════════════════════
+      const CHART_COLORS = [
+        '#4f8ef7',
+        '#f7874f',
+        '#4ff79a',
+        '#f7c94f',
+        '#c47af7',
+        '#f7504f',
+        '#4ff7f0',
+        '#f74faa',
+      ]
+
+      function renderCharts() {
+        Object.values(chartInstances).forEach(c => c.destroy())
+        chartInstances = {}
+
+        const summary = Object.values(STATE.summary)
+        const names = summary.map(s => s.display)
+        const { commits, config } = STATE
+
+        const html = `
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Commits Per Student</div>
+        <canvas id="chart-commits"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Lines of Code Added</div>
+        <canvas id="chart-lines"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">PRs Opened vs Merged</div>
+        <canvas id="chart-prs"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Last-Minute Activity Rate</div>
+        <canvas id="chart-lm"></canvas>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-title">Commit Timeline — Each Dot = One Commit</div>
+        <canvas id="chart-timeline" style="max-height:200px;"></canvas>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-title">Cumulative Commits Over Sprint</div>
+        <canvas id="chart-cumulative" style="max-height:220px;"></canvas>
+      </div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card wide">
+        <div class="chart-title">Activity Heatmap by Day & Hour (UTC) — per student</div>
+        <div id="heatmap-container"></div>
+      </div>
+    </div>
+  `
+
+        document.getElementById('charts-content').innerHTML = html
+
+        // Commits bar
+        chartInstances['commits'] = new Chart(
+          document.getElementById('chart-commits'),
+          {
+            type: 'bar',
+            data: {
+              labels: names,
+              datasets: [
+                {
+                  data: summary.map(s => s.commits),
+                  backgroundColor: CHART_COLORS,
+                  borderRadius: 6,
+                },
+              ],
+            },
+            options: chartOpts('Commits', false),
+          }
+        )
+
+        // Lines bar
+        chartInstances['lines'] = new Chart(
+          document.getElementById('chart-lines'),
+          {
+            type: 'bar',
+            data: {
+              labels: names,
+              datasets: [
+                {
+                  label: 'Added',
+                  data: summary.map(s => s.linesAdded),
+                  backgroundColor: '#4ff79a88',
+                  borderColor: '#4ff79a',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                },
+                {
+                  label: 'Deleted',
+                  data: summary.map(s => s.linesDeleted),
+                  backgroundColor: '#f75f5f88',
+                  borderColor: '#f75f5f',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                },
+              ],
+            },
+            options: chartOpts('Lines', true),
+          }
+        )
+
+        // PRs bar
+        chartInstances['prs'] = new Chart(
+          document.getElementById('chart-prs'),
+          {
+            type: 'bar',
+            data: {
+              labels: names,
+              datasets: [
+                {
+                  label: 'Opened',
+                  data: summary.map(s => s.prsOpened),
+                  backgroundColor: '#4f8ef788',
+                  borderColor: '#4f8ef7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                },
+                {
+                  label: 'Merged',
+                  data: summary.map(s => s.prsMerged),
+                  backgroundColor: '#4ff79a88',
+                  borderColor: '#4ff79a',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                },
+              ],
+            },
+            options: chartOpts('PRs', true),
+          }
+        )
+
+        // Last-minute rate
+        chartInstances['lm'] = new Chart(document.getElementById('chart-lm'), {
+          type: 'bar',
+          data: {
+            labels: names,
+            datasets: [
+              {
+                label: 'LM Commit %',
+                data: summary.map(s =>
+                  s.commits > 0 ?
+                    Math.round((s.lastMinuteCommits / s.commits) * 100)
+                  : 0
+                ),
+                backgroundColor: summary.map(s => {
+                  const pct =
+                    s.commits > 0 ? s.lastMinuteCommits / s.commits : 0
+                  return (
+                    pct > 0.7 ? '#f75f5f88'
+                    : pct > 0.5 ? '#f7c94f88'
+                    : '#4ff79a88'
+                  )
+                }),
+                borderRadius: 6,
+              },
+            ],
+          },
+          options: {
+            ...chartOpts('Last-Minute %', false),
+            scales: {
+              y: {
+                ...darkScale(),
+                max: 100,
+                ticks: { callback: v => v + '%', color: '#6b7394' },
+              },
+              x: darkScale(),
+            },
+          },
+        })
+
+        // Timeline scatter
+        const timelineDatasets = summary.map((s, i) => ({
+          label: s.display,
+          data: commits
+            .filter(c => c.author === s.uname)
+            .map(c => ({ x: c.date, y: i })),
+          backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+          pointRadius: 6,
+          pointHoverRadius: 9,
+        }))
+
+        chartInstances['timeline'] = new Chart(
+          document.getElementById('chart-timeline'),
+          {
+            type: 'scatter',
+            data: { datasets: timelineDatasets },
+            options: {
+              animation: false,
+              plugins: {
+                legend: { labels: { color: '#6b7394', font: { size: 11 } } },
+                tooltip: {
+                  callbacks: {
+                    label: ctx => {
+                      const c = commits.filter(
+                        x =>
+                          x.author ===
+                          Object.keys(STATE.members)[ctx.datasetIndex]
+                      )[ctx.dataIndex]
+                      return c ?
+                          `${c.name}: ${c.message?.slice(0, 40)} ${
+                            c.isLastMinute ? '⚠ LM' : ''
+                          }`
+                        : ''
+                    },
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  type: 'time',
+                  time: { unit: 'day', displayFormats: { day: 'MMM d' } },
+                  ticks: { color: '#6b7394' },
+                  grid: { color: '#2a2f4244' },
+                },
+                y: {
+                  ticks: {
+                    color: '#6b7394',
+                    callback: v => Object.values(STATE.members)[v] || '',
+                  },
+                  grid: { color: '#2a2f4244' },
+                },
+              },
+            },
+          }
+        )
+
+        // Cumulative
+        const sprintDays = []
+        const sd = new Date(config.startDT)
+        while (sd <= config.endDT) {
+          sprintDays.push(new Date(sd))
+          sd.setDate(sd.getDate() + 1)
+        }
+
+        const cumulDatasets = summary.map((s, i) => {
+          const uc = commits
+            .filter(c => c.author === s.uname)
+            .sort((a, b) => a.date - b.date)
+          let count = 0
+          const data = sprintDays.map(d => {
+            count += uc.filter(c => {
+              const cd = new Date(c.date)
+              cd.setHours(0, 0, 0, 0)
+              const dd = new Date(d)
+              dd.setHours(0, 0, 0, 0)
+              return cd.getTime() === dd.getTime()
+            }).length
+            return { x: new Date(d), y: count }
+          })
+          return {
+            label: s.display,
+            data,
+            borderColor: CHART_COLORS[i % CHART_COLORS.length],
+            backgroundColor: 'transparent',
+            tension: 0.3,
+            pointRadius: 3,
+          }
+        })
+
+        chartInstances['cumulative'] = new Chart(
+          document.getElementById('chart-cumulative'),
+          {
+            type: 'line',
+            data: { datasets: cumulDatasets },
+            options: {
+              animation: false,
+              plugins: {
+                legend: { labels: { color: '#6b7394', font: { size: 11 } } },
+              },
+              scales: {
+                x: {
+                  type: 'time',
+                  time: { unit: 'day', displayFormats: { day: 'MMM d' } },
+                  ticks: { color: '#6b7394' },
+                  grid: { color: '#2a2f4244' },
+                },
+                y: {
+                  ticks: { color: '#6b7394' },
+                  grid: { color: '#2a2f4244' },
+                },
+              },
+            },
+          }
+        )
+
+        // Heatmap
+        renderHeatmaps()
+      }
+
+      function darkScale() {
+        return { ticks: { color: '#6b7394' }, grid: { color: '#2a2f4244' } }
+      }
+
+      function chartOpts(ylabel, legend) {
+        return {
+          animation: false,
+          plugins: {
+            legend: {
+              display: legend,
+              labels: { color: '#6b7394', font: { size: 11 } },
+            },
+          },
+          scales: {
+            x: darkScale(),
+            y: { ...darkScale(), beginAtZero: true, title: { display: false } },
+          },
+        }
+      }
+
+      function renderHeatmaps() {
+        const { members, commits } = STATE
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        const container = document.getElementById('heatmap-container')
+        container.style.display = 'flex'
+        container.style.gap = '20px'
+        container.style.flexWrap = 'wrap'
+
+        for (const [uname, display] of Object.entries(members)) {
+          const uc = commits.filter(c => c.author === uname)
+          // Count by [dow][hour]
+          const grid = Array.from({ length: 7 }, () => Array(24).fill(0))
+          uc.forEach(c => {
+            const d = new Date(c.date)
+            const dow = (d.getUTCDay() + 6) % 7 // Mon=0
+            const hour = d.getUTCHours()
+            grid[dow][hour]++
+          })
+          const maxVal = Math.max(...grid.flat(), 1)
+
+          const wrap = document.createElement('div')
+          wrap.style.cssText = 'min-width:200px;'
+          wrap.innerHTML = `<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px;">${display}</div>`
+
+          const table = document.createElement('div')
+          table.style.cssText = 'display:grid; gap:2px;'
+
+          // Hour labels row
+          const labelRow = document.createElement('div')
+          labelRow.style.cssText =
+            'display:flex; gap:2px; margin-left:32px; margin-bottom:2px;'
+          ;[0, 6, 12, 18, 23].forEach(h => {
+            const lbl = document.createElement('div')
+            lbl.style.cssText = `font-size:9px;color:var(--muted);width:${
+              h === 0 ? 18 * 1 : 18 * 6
+            }px;font-family:var(--mono);`
+            lbl.textContent =
+              h === 0 ? '0h'
+              : h === 6 ? '6h'
+              : h === 12 ? '12h'
+              : h === 18 ? '18h'
+              : '23h'
+            labelRow.appendChild(lbl)
+          })
+          table.appendChild(labelRow)
+
+          days.forEach((day, di) => {
+            const row = document.createElement('div')
+            row.style.cssText = 'display:flex; gap:2px; align-items:center;'
+            const dayLabel = document.createElement('div')
+            dayLabel.style.cssText =
+              'font-size:9px;color:var(--muted);width:28px;font-family:var(--mono);'
+            dayLabel.textContent = day
+            row.appendChild(dayLabel)
+            for (let h = 0; h < 24; h++) {
+              const cell = document.createElement('div')
+              const val = grid[di][h]
+              const intensity = val / maxVal
+              cell.style.cssText = `width:16px;height:16px;border-radius:2px;cursor:default;`
+              cell.title = `${day} ${h}:00 — ${val} commit${
+                val !== 1 ? 's' : ''
+              }`
+              if (val === 0) {
+                cell.style.background = 'var(--border)'
+              } else {
+                const r = Math.round(79 + intensity * (247 - 79))
+                const g = Math.round(142 + intensity * (201 - 142))
+                const b = Math.round(247 + intensity * (79 - 247))
+                cell.style.background = `rgb(${r},${g},${b})`
+              }
+              row.appendChild(cell)
+            }
+            table.appendChild(row)
+          })
+
+          wrap.appendChild(table)
+          if (uc.length === 0) {
+            const note = document.createElement('div')
+            note.style.cssText =
+              'font-size:11px;color:var(--muted);margin-top:6px;'
+            note.textContent = 'No commits in sprint window'
+            wrap.appendChild(note)
+          }
+          container.appendChild(wrap)
+        }
+      }
+
+      // ════════════════════════════════════════════
+      //  STUDENTS
+      // ════════════════════════════════════════════
+      function renderStudents() {
+        const summary = Object.values(STATE.summary)
+        const { commits, prs, reviews } = STATE
+
+        const tabs = `<div class="tab-bar">
+    ${summary
+      .map(
+        (s, i) =>
+          `<div class="tab ${
+            i === 0 ? 'active' : ''
+          }" onclick="selectStudent('${s.uname}')" id="stab-${s.uname}">${
+            s.display.split(' ')[0]
+          }</div>`
+      )
+      .join('')}
+  </div>`
+
+        const panes = summary
+          .map((s, i) => {
+            const uc = commits
+              .filter(c => c.author === s.uname)
+              .sort((a, b) => a.date - b.date)
+            const up = prs
+              .filter(p => p.author === s.uname)
+              .sort((a, b) => a.createdAt - b.createdAt)
+            const ur = reviews.filter(r => r.reviewer === s.uname)
+            const avgC = teamAvg('commits'),
+              avgL = teamAvg('linesAdded'),
+              avgP = teamAvg('prsOpened')
+            const concerns = getConcerns(s)
+
+            return `<div class="tab-pane ${
+              i === 0 ? 'active' : ''
+            }" id="spane-${s.uname}">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+        <div>
+          <div class="section-header">Metrics vs. Team Average</div>
+          ${metricBar('Commits', s.commits, avgC)}
+          ${metricBar('Lines Added', s.linesAdded, avgL)}
+          ${metricBar('PRs Opened', s.prsOpened, avgP)}
+          ${metricBar('Reviews Given', s.reviewsGiven, teamAvg('reviewsGiven'))}
+        </div>
+        <div>
+          <div class="section-header">Flags & Observations</div>
+          <div class="concern-list">
+            ${concerns
+              .map(
+                c => `<div class="concern-item ${c.type}">
+              ${
+                c.type === 'danger' ? '⚠'
+                : c.type === 'warn' ? '⚠'
+                : c.type === 'ok' ? '✓'
+                : 'ℹ'
+              } ${c.msg}
+            </div>`
+              )
+              .join('')}
+          </div>
+          <div class="divider" style="margin:16px 0;"></div>
+          <div style="font-family:var(--mono);font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div style="color:var(--muted)">Avg h→Merge</div>
+            <div>${
+              s.avgHoursToMerge !== null ? s.avgHoursToMerge + 'h' : '—'
+            }</div>
+            <div style="color:var(--muted)">LM Commit Rate</div>
+            <div>${
+              s.commits > 0 ?
+                Math.round((s.lastMinuteCommits / s.commits) * 100) + '%'
+              : '—'
+            }</div>
+            <div style="color:var(--muted)">LM PR Rate</div>
+            <div>${
+              s.prsOpened > 0 ?
+                Math.round((s.lastMinutePRs / s.prsOpened) * 100) + '%'
+              : '—'
+            }</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">Commit Log (${uc.length})</div>
+        ${
+          uc.length ?
+            `<div class="commit-log">
+          <div class="commit-entry" style="font-size:10px;color:var(--muted);font-weight:600;">
+            <span>Date (UTC)</span><span>SHA</span><span>+</span><span>-</span><span>Message</span>
+          </div>
+          ${uc
+            .map(
+              c => `<div class="commit-entry ${c.isLastMinute ? '' : ''}">
+            <span style="${
+              c.isLastMinute ? 'color:var(--danger);' : ''
+            }">${c.date.toISOString().slice(0, 16).replace('T', ' ')} ${
+              c.isLastMinute ? '⚠' : ''
+            }</span>
+            <span><a href="${
+              c.url
+            }" target="_blank" style="color:var(--accent);text-decoration:none;">${
+              c.sha
+            }</a></span>
+            <span style="color:var(--ok)">+${c.additions}</span>
+            <span style="color:var(--danger)">-${c.deletions}</span>
+            <span style="font-family:var(--sans);color:var(--text)">${
+              c.message
+            }</span>
+          </div>`
+            )
+            .join('')}
+        </div>`
+          : '<div style="color:var(--muted);font-size:13px;">No commits in sprint window.</div>'
+        }
+      </div>
+
+      <div class="section">
+        <div class="section-header">Pull Requests (${up.length})</div>
+        ${
+          up.length ?
+            `<table class="data-table">
+          <thead><tr><th>Created</th><th>PR#</th><th>State</th><th>+</th><th>-</th><th>Review Comments</th><th>Hours to Merge</th><th>Last-Minute?</th><th>Title</th></tr></thead>
+          <tbody>${up
+            .map(
+              p => `<tr>
+            <td style="${
+              p.isLastMinute ? 'color:var(--danger);' : ''
+            }">${p.createdAt.toISOString().slice(0, 16).replace('T', ' ')}</td>
+            <td><a href="${
+              p.url
+            }" target="_blank" style="color:var(--accent);text-decoration:none;font-family:var(--mono)">#${
+              p.number
+            }</a></td>
+            <td><span class="badge ${
+              p.merged ? 'badge-ok'
+              : p.state === 'closed' ? 'badge-muted'
+              : 'badge-info'
+            }">${p.merged ? 'MERGED' : p.state.toUpperCase()}</span></td>
+            <td style="color:var(--ok)">+${p.additions}</td>
+            <td style="color:var(--danger)">-${p.deletions}</td>
+            <td>${p.reviewComments}</td>
+            <td style="font-family:var(--mono)">${
+              p.hoursToMerge !== null ? p.hoursToMerge.toFixed(1) + 'h' : '—'
+            }</td>
+            <td>${
+              p.isLastMinute ?
+                '<span class="badge badge-warn">⚠ YES</span>'
+              : '<span class="badge badge-muted">no</span>'
+            }</td>
+            <td>${p.title}</td>
+          </tr>`
+            )
+            .join('')}</tbody>
+        </table>`
+          : '<div style="color:var(--muted);font-size:13px;">No PRs in sprint window.</div>'
+        }
+      </div>
+
+      ${
+        ur.length ?
+          `<div class="section">
+        <div class="section-header">Reviews Given (${ur.length})</div>
+        <table class="data-table">
+          <thead><tr><th>Submitted</th><th>PR#</th><th>State</th><th>Body Length</th><th>PR Title</th></tr></thead>
+          <tbody>${ur
+            .map(
+              r => `<tr>
+            <td>${r.submittedAt
+              .toISOString()
+              .slice(0, 16)
+              .replace('T', ' ')}</td>
+            <td>#${r.prNumber}</td>
+            <td><span class="badge ${
+              r.state === 'APPROVED' ? 'badge-ok'
+              : r.state === 'CHANGES_REQUESTED' ? 'badge-warn'
+              : 'badge-info'
+            }">${r.state}</span></td>
+            <td>${r.bodyLen} chars</td>
+            <td>${r.prTitle}</td>
+          </tr>`
+            )
+            .join('')}</tbody>
+        </table>
+      </div>`
+        : ''
+      }
+    </div>`
+          })
+          .join('')
+
+        document.getElementById('students-content').innerHTML = tabs + panes
+      }
+
+      function selectStudent(uname) {
+        document
+          .querySelectorAll('#students-content .tab')
+          .forEach(t => t.classList.remove('active'))
+        document
+          .querySelectorAll('#students-content .tab-pane')
+          .forEach(p => p.classList.remove('active'))
+        document.getElementById('stab-' + uname).classList.add('active')
+        document.getElementById('spane-' + uname).classList.add('active')
+      }
+
+      function metricBar(label, val, avg) {
+        const pct = avg > 0 ? Math.min(val / avg, 2) : 0
+        const color =
+          pct < 0.7 ? 'var(--danger)'
+          : pct > 1.5 ? 'var(--ok)'
+          : 'var(--accent)'
+        return `<div style="margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+      <span style="color:var(--muted)">${label}</span>
+      <span style="font-family:var(--mono)">${val.toLocaleString()} <span style="color:var(--muted);font-size:11px;">/ avg ${Math.round(
+        avg
+      ).toLocaleString()}</span></span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" style="width:${Math.min(
+        pct * 50,
+        100
+      )}%;background:${color};"></div>
+    </div>
+  </div>`
+      }
+
+      // ════════════════════════════════════════════
+      //  AI GRADING
+      // ════════════════════════════════════════════
+      function populateAITargets() {
+        const sel = document.getElementById('ai-target')
+        sel.innerHTML = '<option value="team">Whole Team</option>'
+        for (const [uname, display] of Object.entries(STATE.members)) {
+          const opt = document.createElement('option')
+          opt.value = uname
+          opt.textContent = display
+          sel.appendChild(opt)
+        }
+      }
+
+      // Detect whether we're inside the Claude artifact sandbox.
+      // In that context the runtime injects a keyless proxy at /api/anthropic/...
+      // When running as a local file (file://) we call the real API with the user's key.
+      function isClaudeArtifact() {
+        try {
+          return (
+            window.location.protocol !== 'file:' &&
+            window.location.hostname !== 'localhost'
+          )
+        } catch (e) {
+          return false
+        }
+      }
+
+      async function callAnthropicStreaming(apiKey, payload, onChunk, signal) {
+        const inArtifact = isClaudeArtifact()
+
+        const url = 'https://api.anthropic.com/v1/messages'
+
+        const headers = { 'Content-Type': 'application/json' }
+        if (inArtifact) {
+          // Inside Claude's artifact sandbox the key must NOT be sent —
+          // the iframe proxy handles auth. Sending x-api-key causes a 401.
+          headers['anthropic-dangerous-direct-browser-access'] = 'true'
+        } else {
+          // Running locally as file:// — send key directly.
+          headers['x-api-key'] = apiKey
+          headers['anthropic-version'] = '2023-06-01'
+          headers['anthropic-dangerous-direct-browser-access'] = 'true'
+        }
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ ...payload, stream: true }),
+          signal,
+        })
+
+        if (!response.ok) {
+          const err = await response.text()
+          throw new Error(err)
+        }
+
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let fullText = ''
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          const chunk = decoder.decode(value, { stream: true })
+          for (const line of chunk.split('\n')) {
+            if (!line.startsWith('data: ')) continue
+            const data = line.slice(6)
+            if (data === '[DONE]') continue
+            try {
+              const parsed = JSON.parse(data)
+              if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+                fullText += parsed.delta.text
+                onChunk(fullText)
+              }
+            } catch (e) {}
+          }
+        }
+        return fullText
+      }
+
+      async function runAI() {
+        const apiKey = document.getElementById('ai-token').value.trim()
+        const rubric = document.getElementById('ai-rubric').value.trim()
+        const target = document.getElementById('ai-target').value
+        const fetchCode =
+          document.getElementById('ai-fetch-code').value === 'yes'
+        const outputEl = document.getElementById('ai-output')
+
+        // Key only required when running locally
+        if (!isClaudeArtifact() && !apiKey) {
+          outputEl.innerHTML =
+            '<span style="color:var(--danger)">Anthropic API key is required when running locally.</span>'
+          return
+        }
+        if (!Object.keys(STATE.summary).length) {
+          outputEl.innerHTML =
+            '<span style="color:var(--danger)">Load demo data or run an analysis first.</span>'
+          return
+        }
+
+        aiAbortController = new AbortController()
+        document.getElementById('ai-run-btn').disabled = true
+        document.getElementById('ai-stop-btn').style.display = 'inline-flex'
+        outputEl.innerHTML =
+          '<span style="color:var(--muted)">Preparing data...</span>'
+
+        try {
+          // ── Optional: fetch repo code ──
+          let repoContext = ''
+          if (fetchCode && STATE.config.token) {
+            outputEl.innerHTML =
+              '<span style="color:var(--muted)">Fetching repository file tree...</span>'
+            try {
+              const tree = await ghFetch(
+                STATE.config.token,
+                `https://api.github.com/repos/${STATE.config.repo}/git/trees/HEAD?recursive=1`
+              )
+              const files = (tree.tree || [])
+                .filter(f => f.type === 'blob')
+                .map(f => f.path)
+              const srcFiles = files
+                .filter(
+                  f =>
+                    (f.endsWith('.ts') ||
+                      f.endsWith('.js') ||
+                      f.endsWith('.tsx') ||
+                      f.endsWith('.json')) &&
+                    !f.includes('node_modules') &&
+                    !f.includes('.lock') &&
+                    !f.includes('dist/')
+                )
+                .slice(0, 40)
+              repoContext = `\n\n## Repository File Tree (source files)\n${srcFiles.join(
+                '\n'
+              )}\nTotal files: ${files.length}`
+
+              const keyFiles = srcFiles
+                .filter(
+                  f =>
+                    f.includes('service') ||
+                    f.includes('repo') ||
+                    f.includes('controller') ||
+                    f.includes('router') ||
+                    f.includes('CONTRACTS')
+                )
+                .slice(0, 6)
+
+              outputEl.innerHTML = `<span style="color:var(--muted)">Fetching ${keyFiles.length} key source files...</span>`
+
+              for (const fp of keyFiles) {
+                try {
+                  const fileData = await ghFetch(
+                    STATE.config.token,
+                    `https://api.github.com/repos/${
+                      STATE.config.repo
+                    }/contents/${encodeURIComponent(fp)}`
+                  )
+                  const content = atob(fileData.content.replace(/\n/g, ''))
+                  repoContext += `\n\n### ${fp}\n\`\`\`\n${content.slice(
+                    0,
+                    2000
+                  )}${content.length > 2000 ? '\n... (truncated)' : ''}\n\`\`\``
+                } catch (e) {}
+              }
+            } catch (e) {
+              repoContext =
+                '\n\n(Repository code fetch failed: ' + e.message + ')'
+            }
+          }
+
+          // ── Build prompt via shared helpers ──
+          const summary = Object.values(STATE.summary)
+          const targetStudents =
+            target === 'team' ? summary : (
+              summary.filter(s => s.uname === target)
+            )
+
+          const ctx = buildGradingContext(targetStudents)
+          const { systemPrompt, userPrompt } = buildGradingPrompts(
+            ctx,
+            repoContext
+          )
+
+          outputEl.textContent = ''
+          let streamBuffer = ''
+
+          const finalText = await callAnthropicStreaming(
+            apiKey,
+            {
+              model: 'claude-sonnet-4-6',
+              max_tokens: 8000,
+              system: systemPrompt,
+              messages: [{ role: 'user', content: userPrompt }],
+            },
+            text => {
+              streamBuffer = text
+              outputEl.textContent = text
+              outputEl.scrollTop = outputEl.scrollHeight
+            },
+            aiAbortController.signal
+          )
+
+          finalizeGradingOutput(finalText || streamBuffer, targetStudents)
+        } catch (e) {
+          if (e.name === 'AbortError') {
+            outputEl.style.whiteSpace = 'pre-wrap'
+            outputEl.innerHTML =
+              `<span style="color:var(--warn)">⚠ Grading stopped. Partial output shown above.</span>`
+          } else {
+            outputEl.innerHTML = `<span style="color:var(--danger)">Error: ${e.message}</span>`
+          }
+        } finally {
+          aiAbortController = null
+          document.getElementById('ai-run-btn').disabled = false
+          document.getElementById('ai-stop-btn').style.display = 'none'
+        }
+      }
+
+      function stopAI() {
+        if (aiAbortController) aiAbortController.abort()
+      }
+
+      function copyAIOutput() {
+        // Copy raw markdown from whichever pane is active
+        const activePaneBody = document.querySelector(
+          '.grading-student-pane.active .grading-pane-body'
+        )
+        const text =
+          activePaneBody ?
+            (activePaneBody.dataset.raw || activePaneBody.textContent)
+          : document.getElementById('ai-output').textContent
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = event.target
+          btn.textContent = 'Copied!'
+          setTimeout(() => (btn.textContent = 'Copy Output'), 1500)
+        })
+      }
+
+      // ── Parse streamed AI output into per-student tabs ──
+      function finalizeGradingOutput(text, targetStudents) {
+        if (!text) return
+        const outputEl = document.getElementById('ai-output')
+
+        // Split on "### STUDENT:" markers (case-insensitive)
+        const parts = text.split(/(?=### STUDENT:)/i)
+
+        // If there's only one section or parsing failed, show plain text
+        if (parts.length < 2) {
+          outputEl.style.whiteSpace = 'pre-wrap'
+          return
+        }
+
+        // Build student tab UI
+        const preamble = parts[0].trim()
+        const studentSections = parts.slice(1)
+
+        // Extract student name from each section header
+        const parsed = studentSections.map((section, i) => {
+          const headerMatch = section.match(/### STUDENT:\s*(.+?)(?:\n|$)/i)
+          const header =
+            headerMatch ? headerMatch[1].trim() : `Student ${i + 1}`
+          const body = section.replace(/### STUDENT:\s*.+?(?:\n|$)/i, '').trim()
+          // Derive a short tab label (first name or full name if short)
+          const shortName = header.split(/\s+/)[0]
+          return { header, shortName, body }
+        })
+
+        // Build HTML
+        let html = '<div class="grading-student-tabs">'
+        parsed.forEach((p, i) => {
+          html += `<button class="grading-student-tab${i === 0 ? ' active' : ''}" onclick="showGradingPane(${i})">${escHtml(p.shortName)}</button>`
+        })
+        html += '</div>'
+
+        parsed.forEach((p, i) => {
+          html += `<div class="grading-student-pane${i === 0 ? ' active' : ''}" id="grading-pane-${i}">`
+          html += `<div class="grading-pane-header">`
+          html += `<span class="grading-pane-name">${escHtml(p.header)}</span>`
+          html += `<button class="grading-copy-btn" onclick="copyGradingPane(${i})">Copy for Canvas</button>`
+          html += `</div>`
+          // Render body as markdown, then inject highlight spans for key lines
+          let bodyHtml = marked.parse(p.body, { gfm: true, breaks: true })
+          bodyHtml = bodyHtml
+            .replace(/(TOTAL:[^<]*)/g, '<span class="grading-total-line">$1</span>')
+            .replace(/(Canvas Comment:)/g, '<span class="grading-canvas-label">$1</span>')
+            .replace(/([^<\n]*--\s*\d+\s*\/\s*\d+\s*pts[^<\n]*)/g, '<span class="grading-score-line">$1</span>')
+          // Store raw markdown for copy/download
+          html += `<div class="grading-pane-body" id="grading-body-${i}" data-raw="${escHtml(p.body)}">${bodyHtml}</div>`
+          html += '</div>'
+        })
+
+        outputEl.innerHTML = html
+        outputEl.style.whiteSpace = 'normal'
+      }
+
+      function showGradingPane(idx) {
+        document
+          .querySelectorAll('.grading-student-tab')
+          .forEach((t, i) => t.classList.toggle('active', i === idx))
+        document
+          .querySelectorAll('.grading-student-pane')
+          .forEach((p, i) => p.classList.toggle('active', i === idx))
+      }
+
+      function copyGradingPane(idx) {
+        const body = document.getElementById(`grading-body-${idx}`)
+        const text = body ? (body.dataset.raw || body.textContent) : ''
+        navigator.clipboard.writeText(text).then(() => {
+          const btns = document.querySelectorAll('.grading-copy-btn')
+          const btn = btns[idx]
+          if (btn) {
+            btn.textContent = 'Copied!'
+            setTimeout(() => (btn.textContent = 'Copy for Canvas'), 1500)
+          }
+        })
+      }
+
+      function escHtml(str) {
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+      }
+
+      // ════════════════════════════════════════════
+      //  DEMO DATA (injects the data from our analysis)
+      // ════════════════════════════════════════════
+      function loadDemo() {
+        const members = {
+          alex_chen: 'Alex Chen',
+          jordan_lee: 'Jordan Lee',
+          sam_rivers: 'Sam Rivers',
+          morgan_kim: 'Morgan Kim',
+          casey_jones: 'Casey Jones',
+        }
+
+        const sprintStart = new Date('2026-04-09T00:00:00Z')
+        const sprintEnd = new Date('2026-04-16T23:59:59Z')
+        const deadlineDT = sprintEnd
+        const lmDT = new Date(deadlineDT.getTime() - 24 * 3600 * 1000)
+
+        // Synthetic commits for demo
+        const rawSummary = {
+          alex_chen: {
+            commits: 21,
+            linesAdded: 2165,
+            linesDeleted: 922,
+            filesChanged: 3087,
+            prsOpened: 6,
+            prsMerged: 6,
+            reviewsGiven: 3,
+            approvals: 3,
+            changesRequested: 0,
+            avgReviewLen: 120,
+            issuesOpened: 2,
+            lastMinuteCommits: 5,
+            lastMinutePRs: 2,
+            avgHoursToMerge: 2.5,
+          },
+          jordan_lee: {
+            commits: 17,
+            linesAdded: 6749,
+            linesDeleted: 652,
+            filesChanged: 7401,
+            prsOpened: 4,
+            prsMerged: 4,
+            reviewsGiven: 2,
+            approvals: 2,
+            changesRequested: 0,
+            avgReviewLen: 85,
+            issuesOpened: 1,
+            lastMinuteCommits: 4,
+            lastMinutePRs: 1,
+            avgHoursToMerge: 3.2,
+          },
+          sam_rivers: {
+            commits: 44,
+            linesAdded: 7256,
+            linesDeleted: 1478,
+            filesChanged: 8734,
+            prsOpened: 9,
+            prsMerged: 9,
+            reviewsGiven: 5,
+            approvals: 4,
+            changesRequested: 1,
+            avgReviewLen: 200,
+            issuesOpened: 3,
+            lastMinuteCommits: 8,
+            lastMinutePRs: 3,
+            avgHoursToMerge: 4.5,
+          },
+          morgan_kim: {
+            commits: 15,
+            linesAdded: 6463,
+            linesDeleted: 296,
+            filesChanged: 6759,
+            prsOpened: 7,
+            prsMerged: 7,
+            reviewsGiven: 4,
+            approvals: 3,
+            changesRequested: 1,
+            avgReviewLen: 150,
+            issuesOpened: 2,
+            lastMinuteCommits: 3,
+            lastMinutePRs: 2,
+            avgHoursToMerge: 5.1,
+          },
+          casey_jones: {
+            commits: 11,
+            linesAdded: 1530,
+            linesDeleted: 633,
+            filesChanged: 2163,
+            prsOpened: 2,
+            prsMerged: 2,
+            reviewsGiven: 0,
+            approvals: 0,
+            changesRequested: 0,
+            avgReviewLen: 0,
+            issuesOpened: 0,
+            lastMinuteCommits: 9,
+            lastMinutePRs: 2,
+            avgHoursToMerge: 0.2,
+          },
+        }
+
+        // Generate synthetic commit timestamps
+        const commits = []
+        const prs = []
+        for (const [uname, display] of Object.entries(members)) {
+          const s = rawSummary[uname]
+          // Spread commits: some early, most last-minute
+          const earlyCount = s.commits - s.lastMinuteCommits
+          for (let i = 0; i < earlyCount; i++) {
+            const daysOff = Math.random() * 5
+            const d = new Date(sprintStart.getTime() + daysOff * 86400000)
+            commits.push({
+              sha: Math.random().toString(36).slice(2, 9),
+              author: uname,
+              name: display,
+              date: d,
+              dateTs: d.getTime(),
+              message:
+                'feat: implement ' +
+                ['repository', 'service', 'controller', 'tests', 'routes'][
+                  Math.floor(Math.random() * 5)
+                ] +
+                ' layer',
+              additions: Math.round(s.linesAdded / s.commits),
+              deletions: Math.round(s.linesDeleted / s.commits),
+              files_changed: Math.round(s.filesChanged / s.commits),
+              isLastMinute: false,
+              url: '#',
+            })
+          }
+          for (let i = 0; i < s.lastMinuteCommits; i++) {
+            const hoursOff = Math.random() * 22 + 1
+            const d = new Date(deadlineDT.getTime() - hoursOff * 3600000)
+            commits.push({
+              sha: Math.random().toString(36).slice(2, 9),
+              author: uname,
+              name: display,
+              date: d,
+              dateTs: d.getTime(),
+              message:
+                [
+                  'fix: edge case',
+                  'refactor: cleanup',
+                  'feat: finish',
+                  'fix: tests',
+                  'chore: final',
+                ][Math.floor(Math.random() * 5)] +
+                ' ' +
+                uname.slice(0, 4),
+              additions: Math.round(s.linesAdded / s.commits),
+              deletions: Math.round(s.linesDeleted / s.commits),
+              files_changed: Math.round(s.filesChanged / s.commits),
+              isLastMinute: true,
+              url: '#',
+            })
+          }
+          // PRs
+          for (let i = 0; i < s.prsOpened; i++) {
+            const isLM = i < s.lastMinutePRs
+            const created =
+              isLM ?
+                new Date(
+                  deadlineDT.getTime() - (Math.random() * 20 + 1) * 3600000
+                )
+              : new Date(sprintStart.getTime() + Math.random() * 4 * 86400000)
+            const mergedAt = new Date(
+              created.getTime() + (s.avgHoursToMerge || 1) * 3600000
+            )
+            prs.push({
+              number: 100 + commits.length + i,
+              title: [
+                'Add ' + uname + ' feature',
+                'Implement service layer',
+                'Add repo layer',
+                'Fix controller',
+                'Add routes',
+              ][i % 5],
+              author: uname,
+              name: display,
+              createdAt: created,
+              mergedAt,
+              state: 'closed',
+              merged: true,
+              additions: Math.round(s.linesAdded / s.prsOpened),
+              deletions: Math.round(s.linesDeleted / s.prsOpened),
+              changedFiles: 3,
+              comments: 0,
+              reviewComments: 0,
+              hoursToMerge: s.avgHoursToMerge,
+              isLastMinute: isLM,
+              url: '#',
+            })
+          }
+        }
+
+        STATE.members = members
+        STATE.commits = commits
+        STATE.prs = prs
+        STATE.reviews = []
+        STATE.issues = []
+        STATE.config = {
+          token: '',
+          repo: 'cs326-demo/event-planner',
+          sprintStart: '2026-04-09T00:00',
+          sprintEnd: '2026-04-16T23:59',
+          lmHours: 24,
+          branch: 'main',
+          startDT: sprintStart,
+          endDT: sprintEnd,
+          deadlineDT,
+          lmDT,
+          members,
+        }
+
+        // Put the known summary directly in
+        STATE.summary = {}
+        for (const [uname, display] of Object.entries(members)) {
+          STATE.summary[uname] = { ...rawSummary[uname], display, uname }
+        }
+
+        renderOverview()
+        renderCharts()
+        renderStudents()
+        populateAITargets()
+        persistState()
+        renderSavedTeams()
+        setStatus(
+          'Demo data loaded. Showing data from the analyzed sprint.',
+          'ok'
+        )
+        showTab('overview')
+      }
+
+      // ════════════════════════════════════════════
+      //  THEME
+      // ════════════════════════════════════════════
+      function toggleTheme() {
+        const isLight = document.body.classList.toggle('light')
+        localStorage.setItem('sana-theme', isLight ? 'light' : 'dark')
+        updateThemeButton(isLight)
+      }
+
+      function updateThemeButton(isLight) {
+        const btn = document.getElementById('theme-toggle-btn')
+        const icon = document.getElementById('theme-icon')
+        if (!btn) return
+        icon.textContent = isLight ? '🌙' : '☀'
+        btn.childNodes[1].textContent = isLight ? ' Dark mode' : ' Light mode'
+      }
+
+      function applyTheme() {
+        const saved = localStorage.getItem('sana-theme')
+        const isLight = saved === 'light'
+        document.body.classList.toggle('light', isLight)
+        updateThemeButton(isLight)
+      }
+
+      // ════════════════════════════════════════════
+      //  PERSISTENCE — localStorage helpers
+      // ════════════════════════════════════════════
+      const LS_STATE = 'sana-state'
+      const LS_CONFIG = 'sana-config'
+      const LS_TEAMS = 'sana-teams'
+      const LS_RUBRIC = 'sana-rubric'
+
+      function hydrateState(raw) {
+        // Re-inflate ISO date strings into Date objects after JSON round-trip
+        raw.commits = (raw.commits || []).map(c => ({
+          ...c,
+          date: c.date ? new Date(c.date) : null,
+          dateTs: c.dateTs || (c.date ? new Date(c.date).getTime() : 0),
+        }))
+        raw.prs = (raw.prs || []).map(p => ({
+          ...p,
+          createdAt: p.createdAt ? new Date(p.createdAt) : null,
+          mergedAt: p.mergedAt ? new Date(p.mergedAt) : null,
+        }))
+        raw.reviews = (raw.reviews || []).map(r => ({
+          ...r,
+          submittedAt: r.submittedAt ? new Date(r.submittedAt) : null,
+        }))
+        raw.issues = (raw.issues || []).map(i => ({
+          ...i,
+          createdAt: i.createdAt ? new Date(i.createdAt) : null,
+        }))
+        if (raw.config) {
+          const c = raw.config
+          if (c.startDT) c.startDT = new Date(c.startDT)
+          if (c.endDT) c.endDT = new Date(c.endDT)
+          if (c.deadlineDT) c.deadlineDT = new Date(c.deadlineDT)
+          if (c.lmDT) c.lmDT = new Date(c.lmDT)
+        }
+        return raw
+      }
+
+      function persistState() {
+        try {
+          localStorage.setItem(
+            LS_STATE,
+            JSON.stringify({
+              commits: STATE.commits,
+              prs: STATE.prs,
+              reviews: STATE.reviews,
+              issues: STATE.issues,
+              summary: STATE.summary,
+              members: STATE.members,
+              config: STATE.config,
+            })
+          )
+          persistConfigInputs()
+        } catch (e) {
+          /* storage full / private mode */
+        }
+      }
+
+      function persistConfigInputs() {
+        const cfg = {
+          token: document.getElementById('cfg-token')?.value || '',
+          repo: document.getElementById('cfg-repo')?.value || '',
+          start: document.getElementById('cfg-start')?.value || '',
+          end: document.getElementById('cfg-end')?.value || '',
+          lmHours: document.getElementById('cfg-lm-hours')?.value || '',
+          branch: document.getElementById('cfg-branch')?.value || '',
+          members:
+            document.getElementById('members-list')?.dataset.rows || '[]',
+        }
+        try {
+          localStorage.setItem(LS_CONFIG, JSON.stringify(cfg))
+        } catch (e) {}
+        const rubric = document.getElementById('ai-rubric')?.value
+        if (rubric) {
+          try {
+            localStorage.setItem(LS_RUBRIC, rubric)
+          } catch (e) {}
+        }
+      }
+
+      function restoreConfigInputs(cfg) {
+        if (!cfg) return
+        if (cfg.token !== undefined)
+          document.getElementById('cfg-token').value = cfg.token
+        if (cfg.repo !== undefined)
+          document.getElementById('cfg-repo').value = cfg.repo
+        if (cfg.start !== undefined) {
+          if (startPicker) startPicker.setDate(cfg.start, false)
+          else document.getElementById('cfg-start').value = cfg.start
+        }
+        if (cfg.end !== undefined) {
+          if (endPicker) endPicker.setDate(cfg.end, false)
+          else document.getElementById('cfg-end').value = cfg.end
+        }
+        if (cfg.lmHours !== undefined)
+          document.getElementById('cfg-lm-hours').value = cfg.lmHours
+        if (cfg.branch !== undefined)
+          document.getElementById('cfg-branch').value = cfg.branch
+        if (cfg.members) {
+          const list = document.getElementById('members-list')
+          list.dataset.rows = cfg.members
+          renderMemberList()
+        }
+      }
+
+      function loadPersistedSession() {
+        try {
+          const rawCfg = localStorage.getItem(LS_CONFIG)
+          if (rawCfg) restoreConfigInputs(JSON.parse(rawCfg))
+
+          const rawRubric = localStorage.getItem(LS_RUBRIC)
+          if (rawRubric) document.getElementById('ai-rubric').value = rawRubric
+
+          const rawState = localStorage.getItem(LS_STATE)
+          if (rawState) {
+            const parsed = hydrateState(JSON.parse(rawState))
+            if (
+              parsed.commits?.length ||
+              Object.keys(parsed.summary || {}).length
+            ) {
+              Object.assign(STATE, parsed)
+              renderOverview()
+              renderCharts()
+              renderStudents()
+              populateAITargets()
+              setStatus('Session restored from last visit.', 'ok')
+            }
+          }
+        } catch (e) {}
+      }
+
+      // ════════════════════════════════════════════
+      //  SAVED TEAMS
+      // ════════════════════════════════════════════
+      function getSavedTeams() {
+        try {
+          return JSON.parse(localStorage.getItem(LS_TEAMS) || '{}')
+        } catch (e) {
+          return {}
+        }
+      }
+
+      function saveTeam() {
+        const name = document.getElementById('save-team-name').value.trim()
+        if (!name) {
+          alert('Enter a team name first.')
+          return
+        }
+        if (!Object.keys(STATE.summary).length) {
+          alert('Run an analysis or load data first.')
+          return
+        }
+        const teams = getSavedTeams()
+        teams[name] = {
+          savedAt: new Date().toISOString(),
+          config: {
+            token: document.getElementById('cfg-token').value,
+            repo: document.getElementById('cfg-repo').value,
+            start: document.getElementById('cfg-start').value,
+            end: document.getElementById('cfg-end').value,
+            lmHours: document.getElementById('cfg-lm-hours').value,
+            branch: document.getElementById('cfg-branch').value,
+            members: document.getElementById('members-list').dataset.rows,
+          },
+          state: {
+            commits: STATE.commits,
+            prs: STATE.prs,
+            reviews: STATE.reviews,
+            issues: STATE.issues,
+            summary: STATE.summary,
+            members: STATE.members,
+            config: STATE.config,
+          },
+        }
+        try {
+          localStorage.setItem(LS_TEAMS, JSON.stringify(teams))
+          document.getElementById('save-team-name').value = ''
+          renderSavedTeams()
+          setStatus(`Team "${name}" saved.`, 'ok')
+        } catch (e) {
+          alert('Could not save — localStorage may be full.')
+        }
+      }
+
+      function loadTeam(name) {
+        const teams = getSavedTeams()
+        const entry = teams[name]
+        if (!entry) return
+        restoreConfigInputs(entry.config)
+        const hydrated = hydrateState({ ...entry.state })
+        Object.assign(STATE, hydrated)
+        renderOverview()
+        renderCharts()
+        renderStudents()
+        populateAITargets()
+        persistState()
+        setStatus(`Team "${name}" loaded.`, 'ok')
+        showTab('overview')
+      }
+
+      function deleteTeam(name) {
+        if (!confirm(`Delete saved team "${name}"?`)) return
+        const teams = getSavedTeams()
+        delete teams[name]
+        try {
+          localStorage.setItem(LS_TEAMS, JSON.stringify(teams))
+        } catch (e) {}
+        renderSavedTeams()
+      }
+
+      function renderSavedTeams() {
+        const list = document.getElementById('saved-teams-list')
+        if (!list) return
+        const teams = getSavedTeams()
+        const names = Object.keys(teams)
+        if (!names.length) {
+          list.innerHTML =
+            '<div style="font-size:11px;color:var(--muted);margin-top:6px">No saved teams yet.</div>'
+          return
+        }
+        list.innerHTML = names
+          .map(name => {
+            const saved =
+              teams[name].savedAt ?
+                new Date(teams[name].savedAt).toLocaleDateString()
+              : ''
+            return `<div class="saved-team-row">
+            <span class="saved-team-name">${escHtml(name)}</span>
+            <span style="font-size:10px;color:var(--muted)">${saved}</span>
+            <button onclick="loadTeam(this.dataset.name)" data-name="${escHtml(name)}">Load</button>
+            <button class="del" onclick="deleteTeam(this.dataset.name)" data-name="${escHtml(name)}">Delete</button>
+          </div>`
+          })
+          .join('')
+      }
+
+      // ════════════════════════════════════════════
+      //  CLEAR DATA
+      // ════════════════════════════════════════════
+      function clearData() {
+        if (
+          !confirm(
+            'Clear all current analysis data? Saved teams are not affected.'
+          )
+        )
+          return
+        STATE.commits = []
+        STATE.prs = []
+        STATE.reviews = []
+        STATE.issues = []
+        STATE.summary = {}
+        STATE.members = {}
+        STATE.config = {}
+        try {
+          localStorage.removeItem(LS_STATE)
+        } catch (e) {}
+        document.getElementById('ai-output').innerHTML =
+          '<span class="ai-placeholder">AI grading output will appear here. You must run an analysis first, then provide an API key and rubric above.</span>'
+        document.getElementById('ai-output').style.whiteSpace = ''
+        setStatus('Data cleared.', 'ok')
+        showTab('config')
+      }
+
+      // ════════════════════════════════════════════
+      //  EXPORT / IMPORT JSON
+      // ════════════════════════════════════════════
+      function exportJSON() {
+        if (!Object.keys(STATE.summary).length) {
+          alert('Run an analysis or load data first.')
+          return
+        }
+        const repo = (STATE.config.repo || 'team').replace('/', '-')
+        const date =
+          STATE.config.sprintStart || new Date().toISOString().slice(0, 10)
+        const payload = {
+          exportedAt: new Date().toISOString(),
+          config: {
+            token: document.getElementById('export-include-token').checked
+              ? document.getElementById('cfg-token').value
+              : '',
+            repo: document.getElementById('cfg-repo').value,
+            start: document.getElementById('cfg-start').value,
+            end: document.getElementById('cfg-end').value,
+            lmHours: document.getElementById('cfg-lm-hours').value,
+            branch: document.getElementById('cfg-branch').value,
+            members: document.getElementById('members-list').dataset.rows,
+          },
+          state: {
+            commits: STATE.commits,
+            prs: STATE.prs,
+            reviews: STATE.reviews,
+            issues: STATE.issues,
+            summary: STATE.summary,
+            members: STATE.members,
+            config: STATE.config,
+          },
+        }
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+          type: 'application/json',
+        })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `sprint-${repo}-${date}.json`
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+
+      function importJSON(input) {
+        const file = input.files[0]
+        if (!file) return
+        const reader = new FileReader()
+        reader.onload = e => {
+          try {
+            const raw = JSON.parse(e.target.result)
+            const entry = raw.state ? raw : { state: raw, config: null }
+            if (entry.config) restoreConfigInputs(entry.config)
+            const hydrated = hydrateState({ ...entry.state })
+            Object.assign(STATE, hydrated)
+            renderOverview()
+            renderCharts()
+            renderStudents()
+            populateAITargets()
+            persistState()
+            setStatus(`Imported ${file.name}.`, 'ok')
+            showTab('overview')
+          } catch (err) {
+            alert('Could not read file: ' + err.message)
+          }
+        }
+        reader.readAsText(file)
+        input.value = ''
+      }
+
+      // ════════════════════════════════════════════
+      //  DOWNLOAD MARKDOWN PROMPT
+      // ════════════════════════════════════════════
+      function buildGradingContext(targetStudents) {
+        const summary = Object.values(STATE.summary)
+        const targetUnames = new Set(targetStudents.map(s => s.uname))
+
+        const summaryTable = `| Student | Commits | Lines+ | Lines- | PRs Opened | PRs Merged | Reviews Given | LM Commits | LM PRs | Avg h to Merge |
+|---|---|---|---|---|---|---|---|---|---|
+${summary.map(s => `| ${s.display} (@${s.uname}) | ${s.commits} | ${s.linesAdded} | ${s.linesDeleted} | ${s.prsOpened} | ${s.prsMerged} | ${s.reviewsGiven} | ${s.lastMinuteCommits} | ${s.lastMinutePRs} | ${s.avgHoursToMerge !== null ? s.avgHoursToMerge + 'h' : 'N/A'} |`).join('\n')}`
+
+        const targetCommits = STATE.commits
+          .filter(c => targetUnames.has(c.author))
+          .sort((a, b) => a.dateTs - b.dateTs)
+        const commitLog =
+          targetCommits.length ?
+            targetCommits
+              .map(c => {
+                const d = c.date instanceof Date ? c.date : new Date(c.date)
+                return `${d.toISOString().slice(0, 16).replace('T', ' ')} | ${c.name} (@${c.author}) | ${c.sha} | +${c.additions}/-${c.deletions} | ${c.message}${c.isLastMinute ? ' [LAST-MINUTE]' : ''}`
+              })
+              .join('\n')
+          : '(no commits)'
+
+        const targetPRs = STATE.prs
+          .filter(p => targetUnames.has(p.author))
+          .sort((a, b) => a.createdAt - b.createdAt)
+        const prLog =
+          targetPRs.length ?
+            targetPRs
+              .map(p => {
+                const created = (
+                  p.createdAt instanceof Date ?
+                    p.createdAt
+                  : new Date(p.createdAt))
+                  .toISOString()
+                  .slice(0, 16)
+                  .replace('T', ' ')
+                const merged =
+                  p.mergedAt ?
+                    (p.mergedAt instanceof Date ?
+                      p.mergedAt
+                    : new Date(p.mergedAt)
+                    )
+                      .toISOString()
+                      .slice(0, 10)
+                  : 'not merged'
+                const hrs =
+                  p.hoursToMerge !== null ?
+                    `${p.hoursToMerge.toFixed(1)}h to merge`
+                  : 'open'
+                return `PR#${p.number} | ${p.name} (@${p.author}) | "${p.title}" | +${p.additions}/-${p.deletions} | ${p.reviewComments} review comments | ${merged} | ${hrs}${p.isLastMinute ? ' [LAST-MINUTE]' : ''}`
+              })
+              .join('\n')
+          : '(no PRs)'
+
+        const targetReviews = STATE.reviews
+          .filter(r => targetUnames.has(r.reviewer))
+          .sort((a, b) => a.submittedAt - b.submittedAt)
+        const reviewLog =
+          targetReviews.length ?
+            targetReviews
+              .map(r => {
+                const d = (
+                  r.submittedAt instanceof Date ?
+                    r.submittedAt
+                  : new Date(r.submittedAt))
+                  .toISOString()
+                  .slice(0, 10)
+                return `${d} | ${r.reviewerName} (@${r.reviewer}) reviewed PR#${r.prNumber} by @${r.prAuthor} "${r.prTitle}" | ${r.state} | ${r.bodyLen} chars`
+              })
+              .join('\n')
+          : '(no reviews given)'
+
+        const reviewsReceived = STATE.reviews.filter(r =>
+          targetUnames.has(r.prAuthor)
+        )
+        const reviewsReceivedLog =
+          reviewsReceived.length ?
+            reviewsReceived
+              .map(
+                r =>
+                  `PR#${r.prNumber} (@${r.prAuthor}) received ${r.state} from @${r.reviewer}`
+              )
+              .join('\n')
+          : '(no reviews received)'
+
+        const rubricCriteria = []
+        const rubric = document.getElementById('ai-rubric')?.value.trim() || ''
+        if (rubric) {
+          const re = /^(.+?)\s*\((\d+)%\)/gm
+          let m
+          while ((m = re.exec(rubric)) !== null)
+            rubricCriteria.push({ pct: parseInt(m[2]) })
+          if (!rubricCriteria.length) {
+            const re2 = /Full\s*\((\d+)pts?\)/gi
+            let m2
+            while ((m2 = re2.exec(rubric)) !== null)
+              rubricCriteria.push({ maxPts: parseInt(m2[1]) })
+          }
+        }
+        const totalPossible = rubricCriteria.reduce(
+          (s, c) => s + (c.pct || c.maxPts || 0),
+          0
+        )
+        const studentListStr = targetStudents
+          .map(s => `${s.display} (@${s.uname})`)
+          .join(', ')
+
+        return {
+          summaryTable,
+          commitLog,
+          prLog,
+          reviewLog,
+          reviewsReceivedLog,
+          totalPossible,
+          studentListStr,
+          rubric,
+        }
+      }
+
+      function buildGradingPrompts(ctx, repoContext) {
+        const {
+          summaryTable,
+          commitLog,
+          prLog,
+          reviewLog,
+          reviewsReceivedLog,
+          totalPossible,
+          studentListStr,
+          rubric,
+        } = ctx
+        const lmHours = STATE.config.lmHours || 24
+
+        const systemPrompt = `You are a rigorous and fair software engineering instructor grading student sprint work.
+You grade exclusively on verifiable evidence from the provided GitHub data.
+You follow the output format instructions exactly, producing scores that instructors can paste directly into Canvas LMS.
+
+Core principles:
+- Assign EXACT point values matching a rubric level (e.g., Full, Proficient, Developing, No Marks). Never interpolate between levels.
+- Every Evidence line must cite something specific and verifiable: a commit SHA, PR number, commit message text, review state, or a precise metric. Never make a claim without citing it.
+- "No evidence found in the data" is valid and sufficient justification for the lowest rubric level.
+- For team-wide criteria, evaluate each student's individual contribution to or violation of the team standard.
+- Canvas Comment must be written in second person ("Your commits...", "You reviewed..."), be appropriate for the student to read, and must not mention point values or rubric level names.
+- Do not use em dashes. Do not speculate about reasons not evident in the data.`
+
+        const outputFormat = `
+## REQUIRED OUTPUT FORMAT
+
+For EACH student being graded, output EXACTLY this structure:
+
+### STUDENT: [Full Name] (@[username])
+
+[Criterion Name] -- [score] / [max] pts   (Level: Full / Proficient / Developing / No Marks)
+Evidence: [cite specific SHA, PR number, commit message text, review state, or precise metric]
+
+[Next Criterion] -- [score] / [max] pts   (Level: ...)
+Evidence: [...]
+
+TOTAL: [sum] / ${totalPossible || '[total]'} pts ([percentage]%)
+
+Canvas Comment:
+[2-4 sentences in second person. Cite specific evidence. Note 1-2 strengths and 1 area for growth if applicable. Do not mention point values or rubric level names.]
+
+---
+
+Repeat the block above for each student. Grade these students: ${studentListStr}.`
+
+        const userPrompt = `## Sprint Context
+- Repository: ${STATE.config.repo}
+- Sprint: ${STATE.config.sprintStart} to ${STATE.config.sprintEnd}
+- Deadline: ${STATE.config.sprintEnd} (last-minute window: ${lmHours} hours before sprint end)
+- Team size: ${Object.values(STATE.summary).length} students
+
+## Team Aggregate Metrics (full team shown for context)
+${summaryTable}
+
+## Commit Log (target students, chronological)
+DATE (UTC) | AUTHOR | SHA | +ADDED/-DELETED | MESSAGE   [LAST-MINUTE = within ${lmHours}h of deadline]
+${commitLog}
+
+## Pull Requests Opened (target students)
+PR# | AUTHOR | TITLE | +ADDED/-DELETED | REVIEW COMMENTS | MERGED DATE | TIME TO MERGE
+${prLog}
+
+## Code Reviews Given (by target students)
+DATE | REVIEWER | PR# | PR AUTHOR | PR TITLE | REVIEW STATE | COMMENT LENGTH
+${reviewLog}
+
+## Reviews Received on Target Students' PRs
+${reviewsReceivedLog}
+${repoContext || ''}
+## Rubric
+${rubric || '(no rubric provided -- produce a general assessment with a 0-100 score)'}
+${outputFormat}`
+
+        return { systemPrompt, userPrompt }
+      }
+
+      function downloadMarkdownPrompt() {
+        const summary = Object.values(STATE.summary)
+        if (!summary.length) {
+          alert('Run an analysis or load data first.')
+          return
+        }
+        const target = document.getElementById('ai-target').value
+        const targetStudents =
+          target === 'team' ? summary : summary.filter(s => s.uname === target)
+        const ctx = buildGradingContext(targetStudents)
+        const { systemPrompt, userPrompt } = buildGradingPrompts(ctx, '')
+
+        const repo = (STATE.config.repo || 'team').replace('/', '-')
+        const date =
+          STATE.config.sprintStart || new Date().toISOString().slice(0, 10)
+
+        const markdown = `# Sprint Grading Prompt — ${repo} — ${date}
+
+> Drag this file into [Claude.ai](https://claude.ai) or paste into ChatGPT.
+> The system prompt below sets the grading context; paste it first if your tool supports a system role.
+
+---
+
+## System Prompt
+
+${systemPrompt}
+
+---
+
+## User Message
+
+${userPrompt}
+`
+        const blob = new Blob([markdown], { type: 'text/markdown' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `grading-prompt-${repo}-${date}.md`
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+
+      // ════════════════════════════════════════════
+      //  INIT
+      // ════════════════════════════════════════════
+      document.addEventListener('DOMContentLoaded', () => {
+        // Pre-populate rubric with the CS326 rubric
+        document.getElementById('ai-rubric').value =
+          `Feature Progress & Code Quality: Layer-by-Layer PR Workflow (15%)
+- Full (15pts): Feature broken into layer-based PRs (repo, service, controller), each reviewed and merged by teammate
+- Proficient (11pts): PRs used but too large, reviews superficial
+- Developing (7pts): Single massive PR or self-merged without review
+- No Marks (0pts): No PRs, direct push to branch
+
+Feature Progress & Code Quality: Logic & Connectivity (15%)
+- Full (15pts): E2E flow works seamlessly, repo correctly stores/retrieves
+- Developing (11pts): Flow works partially, crashes on edge cases
+- Proficient (7pts): Works with minor mistakes
+- No Marks (0pts): API endpoints don't work
+
+Feature Progress & Code Quality: Result Pattern (15%)
+- Full (15pts): All service methods return Result<T,E>, controllers check result.ok, proper HTTP codes
+- Proficient (11pts): Mostly used but falls back to exceptions or generic 500
+- Developing (7pts): Largely ignored, relies on try/catch or returning null
+- No Marks (0pts): Absent, app crashes on bad input
+
+Feature Progress & Code Quality: Architecture Layers (15%)
+- Full (15pts): Flawless separation: Controllers=HTTP, Services=business logic, Repos=data
+- Proficient (11pts): Layers exist but boundaries blurred
+- Developing (7pts): Service skipped, logic in route handlers
+- No Marks (0pts): All code in single file/handler
+
+Team Architecture: Global Git State & Contracts (10%)
+- Full (10pts): CONTRACTS.md complete, dev branch used as integration, final sprint PR reviewed before deadline
+- Proficient (8pts): CONTRACTS.md exists but lacks detail, mostly followed workflow
+- Developing (5pts): CONTRACTS.md missing, direct pushes to main
+- No Marks (0pts): No repository management
+
+Team Architecture: Codebase Cleanliness & Commits (10%)
+- Full (10pts): Zero dead code/console.logs, semantic commit prefixes (feat:, fix:, refactor:)
+- Proficient (8pts): Mostly clean, minor artifacts, inconsistent prefixes
+- Developing (5pts): Messy code, vague commit messages (update, fixed it, wip)
+- No Marks (0pts): Mega-commits, unmaintained code`
+
+        applyTheme()
+        renderMemberList()
+        renderSavedTeams()
+        // Restore last session (restores config inputs + STATE if data exists)
+        // Only restore the rubric from storage if one was previously saved;
+        // otherwise keep the default CS326 rubric set above.
+        const savedRubric = localStorage.getItem(LS_RUBRIC)
+        if (savedRubric)
+          document.getElementById('ai-rubric').value = savedRubric
+        loadPersistedSession()
+
+        // Set sprint start/end defaults only when there is no saved config
+        const pad = n => String(n).padStart(2, '0')
+        const toLocalDT = d =>
+          `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+        if (!localStorage.getItem(LS_CONFIG)) {
+          const now = new Date()
+          document.getElementById('cfg-start').value = toLocalDT(now)
+          const weekOut = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+          document.getElementById('cfg-end').value = toLocalDT(weekOut)
+        }
+
+        // Initialize Flatpickr date+time pickers
+        const fpOpts = {
+          enableTime: true,
+          dateFormat: 'Y-m-dTH:i',
+          time_24hr: true,
+          allowInput: false,
+        }
+
+        endPicker = flatpickr('#cfg-end', {
+          ...fpOpts,
+          onChange() { persistConfigInputs() },
+        })
+
+        startPicker = flatpickr('#cfg-start', {
+          ...fpOpts,
+          onChange(selectedDates) {
+            if (selectedDates[0]) {
+              const newEnd = new Date(selectedDates[0].getTime() + 7 * 24 * 60 * 60 * 1000)
+              endPicker.setDate(newEnd, true)
+            }
+            persistConfigInputs()
+          },
+        })
+
+        // Clicking the focused input while the calendar is open should close it
+        document.getElementById('cfg-start').addEventListener('mousedown', () => {
+          if (startPicker.isOpen) startPicker.close()
+        })
+        document.getElementById('cfg-end').addEventListener('mousedown', () => {
+          if (endPicker.isOpen) endPicker.close()
+        })
+
+        // Token: persist + trigger contributor fetch when field is left
+        document.getElementById('cfg-token').addEventListener('blur', () => {
+          persistConfigInputs()
+          fetchContributors()
+        })
+
+        // Repo: normalize URL, persist, then fetch contributors
+        document.getElementById('cfg-repo').addEventListener('blur', function () {
+          const normalized = parseRepoInput(this.value)
+          if (normalized !== this.value) this.value = normalized
+          persistConfigInputs()
+          fetchContributors()
+        })
+
+        // Other fields: just persist on change
+        document
+          .querySelectorAll('#cfg-lm-hours,#cfg-branch')
+          .forEach(el => el.addEventListener('change', persistConfigInputs))
+
+        document
+          .getElementById('ai-rubric')
+          .addEventListener('input', persistConfigInputs)
+      })
+    </script>
+  </body>
+</html>

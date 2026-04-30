@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pandoc material/prj/sprints/sprint-02-demo-guide.docx -t markdown)",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}
